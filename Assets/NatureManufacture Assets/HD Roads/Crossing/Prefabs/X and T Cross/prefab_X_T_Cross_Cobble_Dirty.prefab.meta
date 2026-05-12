@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4117bf3f98ac32849a11ba1ed83084d6
+timeCreated: 1522762882
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Crossing/Prefabs/X and T Cross/prefab_X_T_Cross_Cobble_Dirty.prefab
+  uploadId: 760898

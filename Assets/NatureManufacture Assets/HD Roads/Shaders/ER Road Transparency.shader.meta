@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e84ca25d85634314fa820b85f74831fe
+timeCreated: 1497454705
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Shaders/ER Road Transparency.shader
+  uploadId: 760898

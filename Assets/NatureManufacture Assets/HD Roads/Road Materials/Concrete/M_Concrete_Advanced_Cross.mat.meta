@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8009296b9c4d1e649874815e63c56ccd
+timeCreated: 1520251734
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Road Materials/Concrete/M_Concrete_Advanced_Cross.mat
+  uploadId: 760898

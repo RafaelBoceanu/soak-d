@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dd2d42c33c1647c489e9f6d3ab2c0b3c
+timeCreated: 1524812285
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Asphalt_Lines_Dirty_ER_T_Sidewalks.prefab
+  uploadId: 760898

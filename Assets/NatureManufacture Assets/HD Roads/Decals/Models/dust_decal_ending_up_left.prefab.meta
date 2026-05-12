@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5495a5a6cffa42742a2b0738f0f2ee93
+timeCreated: 1523603224
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Models/dust_decal_ending_up_left.prefab
+  uploadId: 760898

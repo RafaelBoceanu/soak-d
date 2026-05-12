@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 140cbcd958172cc44b46037e04f162a1
+timeCreated: 1524747225
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Concrete_Dirt_ER_Y.prefab
+  uploadId: 760898

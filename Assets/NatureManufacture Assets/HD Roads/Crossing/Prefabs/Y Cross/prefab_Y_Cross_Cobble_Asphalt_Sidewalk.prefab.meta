@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e8b049c61df2f6c4894c38ecbdc871a3
+timeCreated: 1522762882
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Crossing/Prefabs/Y Cross/prefab_Y_Cross_Cobble_Asphalt_Sidewalk.prefab
+  uploadId: 760898

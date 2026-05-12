@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: fcedd143ae442d44da435754a769859f
+timeCreated: 1524836008
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Side Objects and Pavment/Materials/road_reflectorMat.mat
+  uploadId: 760898

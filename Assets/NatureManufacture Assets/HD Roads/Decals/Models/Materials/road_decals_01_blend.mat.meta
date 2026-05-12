@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5c19537ced3530642af5358d4ddb2a11
+timeCreated: 1522241808
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Models/Materials/road_decals_01_blend.mat
+  uploadId: 760898

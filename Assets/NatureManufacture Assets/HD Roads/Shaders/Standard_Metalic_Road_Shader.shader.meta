@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4280b5573cfec0645969dc7ba75bfcd2
+timeCreated: 1525774749
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Shaders/Standard_Metalic_Road_Shader.shader
+  uploadId: 760898

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 0a7f3b99556fe6c41ae34ba383294c33
+timeCreated: 1524812607
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Asphalt_Lines_Damaged_ER_T.prefab
+  uploadId: 760898

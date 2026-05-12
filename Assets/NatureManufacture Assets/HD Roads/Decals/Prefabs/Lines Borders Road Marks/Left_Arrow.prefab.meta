@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: b0b1c3de8f79675448272a5af6832d4b
+timeCreated: 1522244754
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Prefabs/Lines Borders
+    Road Marks/Left_Arrow.prefab
+  uploadId: 760898

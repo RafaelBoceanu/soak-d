@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ee32f9eb6e559f94292c07abec5d1ab2
+timeCreated: 1524748453
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Cobble_Damaged_ER_Y_Sidewalks.prefab
+  uploadId: 760898

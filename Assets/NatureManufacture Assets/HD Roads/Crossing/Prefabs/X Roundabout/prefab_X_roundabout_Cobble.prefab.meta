@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 154f99b2d587f3343b6f8bb9b280b068
+timeCreated: 1522747985
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Crossing/Prefabs/X Roundabout/prefab_X_roundabout_Cobble.prefab
+  uploadId: 760898

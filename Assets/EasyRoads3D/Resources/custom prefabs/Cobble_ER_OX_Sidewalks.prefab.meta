@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e1a5101dee6830949b55ab2b6065e12a
+timeCreated: 1524747907
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Cobble_ER_OX_Sidewalks.prefab
+  uploadId: 760898

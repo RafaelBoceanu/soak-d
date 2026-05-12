@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 7809e4ed8719ab14ead220d078a540da
+timeCreated: 1522244706
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Prefabs/Lines Borders
+    Road Marks/Crossing_Merged.prefab
+  uploadId: 760898

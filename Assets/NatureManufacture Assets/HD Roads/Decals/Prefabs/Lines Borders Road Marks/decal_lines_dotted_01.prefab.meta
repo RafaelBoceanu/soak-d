@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d65013e52bf3ca04aad9acdce199d603
+timeCreated: 1524828070
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Prefabs/Lines Borders
+    Road Marks/decal_lines_dotted_01.prefab
+  uploadId: 760898

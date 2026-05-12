@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b1fbc255f5e9ca04287c0bb209f12b3f
+timeCreated: 1524747371
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Concrete_Damaged_ER_Y.prefab
+  uploadId: 760898

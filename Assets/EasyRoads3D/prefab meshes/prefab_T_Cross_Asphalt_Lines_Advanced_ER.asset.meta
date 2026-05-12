@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 0185e92f861904a4383bbe24060fa3df
+timeCreated: 1523013027
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 4300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/prefab meshes/prefab_T_Cross_Asphalt_Lines_Advanced_ER.asset
+  uploadId: 760898

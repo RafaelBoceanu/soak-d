@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 133b95f7d168f9644aa67e83067b70e4
+timeCreated: 1522241808
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Models/Materials/road_dust_start_end.mat
+  uploadId: 760898

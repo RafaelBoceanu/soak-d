@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 27af00bbdde2ef24e97b7ebb106312d3
+timeCreated: 1522916752
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 4300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/prefab meshes/prefab_Y_roundabout_Asphalt_No_Lines_ER.asset
+  uploadId: 760898

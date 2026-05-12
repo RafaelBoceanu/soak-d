@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 19c81a04531435540b0986b56f936c71
+timeCreated: 1524828104
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Prefabs/Lines Borders
+    Road Marks/decal_lines_stripped_side.prefab
+  uploadId: 760898

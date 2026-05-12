@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 164098b3aa9240f4d9187d28101f77ad
+timeCreated: 1524834897
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Side Objects and Pavment/road_marker_right.prefab
+  uploadId: 760898

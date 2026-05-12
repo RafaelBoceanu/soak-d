@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4414b0b6672aee64b9ca1a22bb7b7112
+timeCreated: 1523602510
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Decals/Prefabs/Asphalt/Decal_Asphalt_Dirt_Crossroad_Mask_02.prefab
+  uploadId: 760898

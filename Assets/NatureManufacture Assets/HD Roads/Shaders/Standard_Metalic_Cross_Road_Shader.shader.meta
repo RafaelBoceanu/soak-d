@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c4f146ea62a49724aaa8020e524bfdfa
+timeCreated: 1525782646
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Shaders/Standard_Metalic_Cross_Road_Shader.shader
+  uploadId: 760898

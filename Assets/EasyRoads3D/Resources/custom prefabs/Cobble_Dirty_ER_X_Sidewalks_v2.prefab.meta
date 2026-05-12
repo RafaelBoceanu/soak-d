@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 845afa13fe766ec4bb72cd5468700933
+timeCreated: 1524748153
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Cobble_Dirty_ER_X_Sidewalks_v2.prefab
+  uploadId: 760898

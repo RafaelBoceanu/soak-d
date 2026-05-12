@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 69609636b9fdfb24fadf3c739d54f961
+timeCreated: 1523000109
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Crossing/Prefabs/X and T Cross/prefab_X_Cross_Asphalt_Lines.prefab
+  uploadId: 760898

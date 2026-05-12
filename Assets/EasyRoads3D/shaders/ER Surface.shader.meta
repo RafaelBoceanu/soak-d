@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c64d59d8c0a593b488900eb2eec7504d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 469
+  packageName: EasyRoads3D Pro v3
+  packageVersion: v3.2.4f4
+  assetPath: Assets/EasyRoads3D/shaders/ER Surface.shader
+  uploadId: 785182

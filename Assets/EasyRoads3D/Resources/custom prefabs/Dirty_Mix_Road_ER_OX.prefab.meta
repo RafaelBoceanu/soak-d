@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a1d13b7fa96397546b7b8f7f05550a90
+timeCreated: 1524747058
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/Resources/custom prefabs/Dirty_Mix_Road_ER_OX.prefab
+  uploadId: 760898

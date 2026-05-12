@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: f0593f3886aad894d864243e40ed1519
+timeCreated: 1522912422
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 4300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/EasyRoads3D/prefab meshes/prefab_X_Cross_Asphalt_Lines_Advanced
+    Dirty_ER.asset
+  uploadId: 760898

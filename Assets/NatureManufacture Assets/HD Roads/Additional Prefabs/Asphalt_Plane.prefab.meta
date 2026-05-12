@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 72787a731da1afd4e969817a87f74f20
+timeCreated: 1523871930
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 118774
+  packageName: EasyRoads3D Pro Add On - HD Roads
+  packageVersion: 1.2.5
+  assetPath: Assets/NatureManufacture Assets/HD Roads/Additional Prefabs/Asphalt_Plane.prefab
+  uploadId: 760898
