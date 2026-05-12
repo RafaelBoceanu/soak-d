@@ -9,6 +9,10 @@ public class MountableVehicle : MonoBehaviour
     [Header("Restrictions")]
     [SerializeField] private string allowedTag; // "Boy" or "Witch"
 
+    [Header("Character Models")]
+    [SerializeField] private GameObject mountedCharacterModel;
+    [SerializeField] private GameObject playableCharacterModel;
+
     [Header("Camera Offsets")]
     [SerializeField] private float vehicleDistance = 7f;
     [SerializeField] private Vector2 vehicleFramingOffset = new Vector2(0, 1f);
@@ -26,6 +30,9 @@ public class MountableVehicle : MonoBehaviour
     {
         bike = GetComponent<BicycleController>();
         broom = GetComponent<FlyingBroomController>();
+
+        if (mountedCharacterModel)
+            mountedCharacterModel.SetActive(false);
     }
 
     public bool CanMount(GameObject player)
@@ -49,6 +56,12 @@ public class MountableVehicle : MonoBehaviour
         currentPlayerInput = playerInput;
         currentPlayerMovement = movement;
 
+        if (mountedCharacterModel)
+            mountedCharacterModel.SetActive(true);
+
+        if (playableCharacterModel)
+            playableCharacterModel.SetActive(false);
+
         // Disable player movement
         movement.enabled = false;
 
@@ -65,7 +78,7 @@ public class MountableVehicle : MonoBehaviour
         // Disable player animator
         Animator anim = playerInput.GetComponentInChildren<Animator>();
         if (anim != null)
-            anim.enabled = false;
+            anim.enabled = false; 
 
         // Disable player collider
         Collider col = playerInput.GetComponent<Collider>();
@@ -103,6 +116,11 @@ public class MountableVehicle : MonoBehaviour
     public void Dismount(PlayerInputHandler player)
     {
         if (!isOccupied || currentPlayerInput != player) return;
+
+        if (mountedCharacterModel)
+            mountedCharacterModel.SetActive(false);
+        if (playableCharacterModel)
+            playableCharacterModel.SetActive(true);
 
         // Unparent player
         currentPlayerInput.transform.SetParent(null);
