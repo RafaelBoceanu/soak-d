@@ -1,0 +1,22 @@
+# Unity asset files (exclude from GitHub language stats)
+*.fbx linguist-vendored
+*.png linguist-vendored
+*.jpg linguist-vendored
+*.tga linguist-vendored
+*.psd linguist-vendored
+
+*.prefab linguist-vendored
+*.mat linguist-vendored
+*.anim linguist-vendored
+*.controller linguist-vendored
+
+*.shader linguist-vendored
+*.hlsl linguist-vendored
+*.cginc linguist-vendored
+
+*.html linguist-vendored
+*.css linguist-vendored
+*.json linguist-vendored
+
+# Optional: force C# dominance in GitHub stats
+*.cs linguist-language=C#
