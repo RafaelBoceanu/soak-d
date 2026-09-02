@@ -1,4 +1,3 @@
-using UnityEditor.Build;
 using UnityEngine;
 
 public class PeeSystem : MonoBehaviour
@@ -22,6 +21,7 @@ public class PeeSystem : MonoBehaviour
     [SerializeField] private AudioSource zipperCloseSound;
     [SerializeField] private AudioSource peeSound;
     [SerializeField] private PlayerNeeds playerNeeds;
+    [SerializeField] private ZipperCensor zipperCensor;
 
     private ParticleSystem.EmissionModule emission;
     private ParticleSystem.MainModule main;
@@ -34,6 +34,13 @@ public class PeeSystem : MonoBehaviour
 
         emission = peeParticleSystem.emission;
         main = peeParticleSystem.main;
+
+        if (zipperCensor == null)
+        {
+            zipperCensor = GetComponent<ZipperCensor>();
+        }
+
+        UpdateCensor();
     }
 
     // Update is called once per frame
@@ -56,6 +63,7 @@ public class PeeSystem : MonoBehaviour
                 this.gameObject.GetComponentInChildren<Animator>().SetBool("isPeeing", false);
                 StopPeeing();
             }
+            UpdateCensor();
 
             Debug.Log(zipButton + " zipper closed: " + zipperClosed);
         }
@@ -134,5 +142,13 @@ public class PeeSystem : MonoBehaviour
 
         // Drippy effect when emptier
         main.startLifetime = Mathf.Lerp(0.3f, 1.0f, normalized);
+    }
+
+    void UpdateCensor()
+    {
+        if (zipperCensor != null)
+        {
+            zipperCensor.SetVisible(!zipperClosed);
+        }    
     }
 }
