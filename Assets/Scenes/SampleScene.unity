@@ -4407,6 +4407,7 @@ GameObject:
   - component: {fileID: 541694506}
   - component: {fileID: 541694507}
   - component: {fileID: 541694508}
+  - component: {fileID: 541694509}
   m_Layer: 9
   m_Name: Witch
   m_TagString: Witch
@@ -4690,6 +4691,7 @@ MonoBehaviour:
   peeSound: {fileID: 1785663885}
   playerNeeds: {fileID: 541694507}
   zipperCensor: {fileID: 541694508}
+  peePuddle: {fileID: 0}
 --- !u!114 &541694507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4731,6 +4733,46 @@ MonoBehaviour:
   tint: {r: 1, g: 1, b: 1, a: 1}
   opacity: 1
   censorShader: {fileID: 4800000, guid: dfee6f21ba3be2740a624ee46a6ef9e9, type: 3}
+--- !u!114 &541694509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541694493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdabdd09862a3f4e99358bfd56888cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PeePuddle
+  spawnPoint: {fileID: 1329764725}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 256
+  minSpeed: 3
+  maxSpeed: 9
+  minGravity: 3
+  maxGravity: 1.5
+  traceStep: 0.06
+  maxTraceSteps: 40
+  puddleMaterial: {fileID: 2100000, guid: c86bb9befb9c23549ac8d87ac80f3b03, type: 2}
+  startRadius: 0.1
+  maxRadius: 0.9
+  growthPerSecond: 0.35
+  projectionDepth: 0.4
+  mergeDistance: 0.5
+  blobTextures:
+  - {fileID: 2800000, guid: 8451490342026344e942c990caf0ef34, type: 3}
+  - {fileID: 2800000, guid: 07bf519df4cf7744ca56d33a53d83102, type: 3}
+  - {fileID: 2800000, guid: fc1af722c547ce14e8804093de7dbfed, type: 3}
+  - {fileID: 2800000, guid: a626ded37514dee4abd7b62b94fdd3e9, type: 3}
+  - {fileID: 2800000, guid: 3a63026a3a3040e4ea7526e59fb0124b, type: 3}
+  aspectJitter: 0.25
+  sizeJitter: 0.3
+  randomMirror: 1
+  maxPuddles: 8
+  fadeDelay: 25
+  fadeDuration: 5
 --- !u!1 &543856485
 GameObject:
   m_ObjectHideFlags: 0
@@ -13429,6 +13471,7 @@ GameObject:
   - component: {fileID: 1552542204}
   - component: {fileID: 1552542205}
   - component: {fileID: 1552542206}
+  - component: {fileID: 1552542207}
   m_Layer: 9
   m_Name: Boy
   m_TagString: Boy
@@ -13711,6 +13754,7 @@ MonoBehaviour:
   peeSound: {fileID: 1785663885}
   playerNeeds: {fileID: 1552542205}
   zipperCensor: {fileID: 1552542206}
+  peePuddle: {fileID: 0}
 --- !u!114 &1552542205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13752,6 +13796,46 @@ MonoBehaviour:
   tint: {r: 1, g: 1, b: 1, a: 1}
   opacity: 1
   censorShader: {fileID: 4800000, guid: dfee6f21ba3be2740a624ee46a6ef9e9, type: 3}
+--- !u!114 &1552542207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552542191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdabdd09862a3f4e99358bfd56888cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PeePuddle
+  spawnPoint: {fileID: 1046671228}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 256
+  minSpeed: 3
+  maxSpeed: 9
+  minGravity: 3
+  maxGravity: 1.5
+  traceStep: 0.06
+  maxTraceSteps: 40
+  puddleMaterial: {fileID: 2100000, guid: c86bb9befb9c23549ac8d87ac80f3b03, type: 2}
+  startRadius: 0.1
+  maxRadius: 0.9
+  growthPerSecond: 0.35
+  projectionDepth: 0.4
+  mergeDistance: 0.5
+  blobTextures:
+  - {fileID: 2800000, guid: 8451490342026344e942c990caf0ef34, type: 3}
+  - {fileID: 2800000, guid: 07bf519df4cf7744ca56d33a53d83102, type: 3}
+  - {fileID: 2800000, guid: fc1af722c547ce14e8804093de7dbfed, type: 3}
+  - {fileID: 2800000, guid: a626ded37514dee4abd7b62b94fdd3e9, type: 3}
+  - {fileID: 2800000, guid: 3a63026a3a3040e4ea7526e59fb0124b, type: 3}
+  aspectJitter: 0.25
+  sizeJitter: 0.3
+  randomMirror: 1
+  maxPuddles: 8
+  fadeDelay: 25
+  fadeDuration: 5
 --- !u!1 &1557376950
 GameObject:
   m_ObjectHideFlags: 0

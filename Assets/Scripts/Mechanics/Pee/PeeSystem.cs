@@ -22,6 +22,7 @@ public class PeeSystem : MonoBehaviour
     [SerializeField] private AudioSource peeSound;
     [SerializeField] private PlayerNeeds playerNeeds;
     [SerializeField] private ZipperCensor zipperCensor;
+    [SerializeField] private PeePuddle peePuddle;
 
     private ParticleSystem.EmissionModule emission;
     private ParticleSystem.MainModule main;
@@ -38,6 +39,16 @@ public class PeeSystem : MonoBehaviour
         if (zipperCensor == null)
         {
             zipperCensor = GetComponent<ZipperCensor>();
+        }
+
+        if (peePuddle == null)
+        {
+            peePuddle = GetComponent<PeePuddle>();
+        }
+
+        if (peePuddle == null)
+        {
+            Debug.LogWarning($"[PeeSystem] {name} has no PeePuddle assigned - no puddles for this player.", this);
         }
 
         UpdateCensor();
@@ -81,6 +92,10 @@ public class PeeSystem : MonoBehaviour
                 StartPeeing();
                 playerNeeds.Pee(1f * Time.deltaTime);
                 UpdateVisuals(normalizedPee);
+                if (peePuddle != null)
+                {
+                    peePuddle.Grow(normalizedPee);
+                }
             }
             else
             {
@@ -111,6 +126,10 @@ public class PeeSystem : MonoBehaviour
             isPeeing = false;
             peeParticleSystem.Stop();
             peeSound.Stop();
+            if (peePuddle != null)
+            {
+                peePuddle.EndPuddle();
+            }
         }
     }
 
