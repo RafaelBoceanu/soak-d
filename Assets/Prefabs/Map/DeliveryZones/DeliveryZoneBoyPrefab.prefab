@@ -131,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   newspaperModel: {fileID: 6859942228491391961}
   newspaperDestroyedModel: {fileID: 8870958943980117998}
-  deliveredSound: {fileID: 0}
+  deliveredSound: {fileID: 2986398105560458252}
   canRedeliverAfterDestroyed: 0
   logRejectedDeliveries: 0
   allowedOwner: 0
