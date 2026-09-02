@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 public class DeliveryScoreManager : MonoBehaviour
-{
+{ 
     static readonly int ownerCount = Enum.GetValues(typeof(OwnerType)).Length;
 
     static int[] zoneCounts = new int[ownerCount];
@@ -18,6 +18,12 @@ public class DeliveryScoreManager : MonoBehaviour
     public static void RegisterZone(OwnerType owner)
     {
         zoneCounts[(int)owner]++;
+        onZoneCountChanged?.Invoke(owner, zoneCounts[(int)owner]);
+    }
+
+    public static void UnregisterZone(OwnerType owner)
+    {
+        zoneCounts[(int)owner] = Math.Max(0, zoneCounts[(int)owner] - 1);
         onZoneCountChanged?.Invoke(owner, zoneCounts[(int)owner]);
     }
 

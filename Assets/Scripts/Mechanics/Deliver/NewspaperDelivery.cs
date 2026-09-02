@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class NewspaperDelivery : MonoBehaviour
 {
@@ -37,7 +36,7 @@ public class NewspaperDelivery : MonoBehaviour
         if (!registered) return;
 
         registered = false;
-        DeliveryScoreManager.RegisterZone(allowedOwner);
+        DeliveryScoreManager.UnregisterZone(allowedOwner);
     }
 
     void Register()
