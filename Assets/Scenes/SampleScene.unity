@@ -15471,6 +15471,10 @@ MonoBehaviour:
   centreDensity: 0.95
   edgeDensity: 0.3
   roadStraightPrefab: {fileID: 7366118959589919433, guid: 69ac6ab55d896c345a95c06c2d5c7a22, type: 3}
+  roadCornerLeftPrefab: {fileID: 7366118959589919433, guid: 74e0c195531362843a3c2cd5bb14fa55, type: 3}
+  roadCornerRightPrefab: {fileID: 7366118959589919433, guid: 21d2912535eaa1e4db54b0628808c7b5, type: 3}
+  roadTJunctionPrefab: {fileID: 7366118959589919433, guid: b55234b544cf6914c9c77f204b9cb0a5, type: 3}
+  roadCrossroadsPrefab: {fileID: 7366118959589919433, guid: 74eb8fc1161e44847b74433c4540d1a1, type: 3}
   housePrefabs:
   - {fileID: 3788787756148280997, guid: 255153657f91cb64a9a09f15c891e833, type: 3}
   roadsParent: {fileID: 1706269643}

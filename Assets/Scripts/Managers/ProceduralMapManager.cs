@@ -4,6 +4,34 @@ using UnityEngine;
 
 public class ProceduralMapManager : MonoBehaviour
 {
+    [Flags]
+    private enum RoadLinks
+    {
+        None = 0,
+        North = 1,
+        East = 2,
+        South = 4,
+        West = 8
+    }
+
+    private static readonly RoadLinks[] linkOrder =
+    {
+        RoadLinks.North, RoadLinks.East, RoadLinks.South, RoadLinks.West
+    };
+
+    private const RoadLinks straightLinks = RoadLinks.North | RoadLinks.South;
+    private const RoadLinks cornerLeftLinks = RoadLinks.South | RoadLinks.West;
+    private const RoadLinks cornerRightLinks = RoadLinks.South | RoadLinks.East;
+    private const RoadLinks tJunctionLinks = RoadLinks.South | RoadLinks.East | RoadLinks.West;
+    private const RoadLinks crossroadsLinks = RoadLinks.North | RoadLinks.East | RoadLinks.South | RoadLinks.West;
+
+    private const float roadThickness = 0.3f;
+
+    private static readonly Vector2Int[] neighbourSteps =
+    {
+        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
+    };
+
     [Header("Grid Settings")]
     public int width = 50;
     public int height = 50;
@@ -36,6 +64,13 @@ public class ProceduralMapManager : MonoBehaviour
     [Tooltip("Smallest gap between two branches, so blocks are never one cell deep")]
     public int minBlockSize = 4;
 
+    [Header("Street Connections")]
+    [Tooltip("How far a street that dead ends may be pushed on to meet another street")]
+    public int maxConnectDistance = 12;
+
+    [Tooltip("Delete streets that still dead end after there was no way to connect them")]
+    public bool trimUnconnectedStreets = true;
+
     [Header("House density")]
     [Tooltip("Chance to place a house next to a road near the town centre")]
     [Range(0f, 1f)]
@@ -45,8 +80,28 @@ public class ProceduralMapManager : MonoBehaviour
     [Range(0f, 1f)]
     public float edgeDensity = 0.3f;
 
-    [Header("Prefabs")]
+    [Header("Road Prefabs")]
+    [Tooltip("Tile laid where a road runs through, dead ends or is left unmatched")]
     public GameObject roadStraightPrefab;
+
+    [Tooltip("Tick if the straight tile is modelled running east to west. Leave " +
+           "clear if it runs north to south, which is how the kerbs and centre " +
+           "line are laid out in RoadStraightPrefab.")]
+    public bool straightPrefabRunsEastWest = false;
+
+    [Tooltip("Bend whose open sides are south and west before rotation")]
+    public GameObject roadCornerLeftPrefab;
+
+    [Tooltip("Bend whose open sides are south and east before rotation")]
+    public GameObject roadCornerRightPrefab;
+
+    [Tooltip("Three way junction, closed to the north before rotation")]
+    public GameObject roadTJunctionPrefab;
+
+    [Tooltip("Crossroads, open on all four sides")]
+    public GameObject roadCrossroadsPrefab;
+
+    [Header("House Prefabs")]
     public GameObject[] housePrefabs;
 
     [Header("Parents")]
@@ -129,6 +184,157 @@ public class ProceduralMapManager : MonoBehaviour
 
         BranchStreets(secondaryRoads, height / 6, height / 3);
         BranchStreets(sideStreets, 3, Mathf.Max(4, height / 6));
+
+        ConnectDanglingStreets();
+    }
+
+    void ConnectDanglingStreets()
+    {
+        Vector2Int centre = new Vector2Int(width / 2, height / 2);
+
+        for (int pass = 0; pass < 4; pass++)
+        {
+            bool changed = false;
+
+            foreach (Vector2Int end in FindDeadEnds())
+            {
+                if (end == centre) continue;
+
+                if (CountRoadNeighbours(end) != 1) continue;
+
+                if (IsOnGridEdge(end)) continue;
+
+                if (TryExtendToNetwork(end)) changed = true;
+                else if (trimUnconnectedStreets) { TrimCulDeSac(end, centre); changed = true; }
+            }
+
+            if (!changed) break;
+        }
+    }
+
+    List<Vector2Int> FindDeadEnds()
+    {
+        List<Vector2Int> ends = new List<Vector2Int>();
+
+        foreach (Vector2Int cell in roadNetwork)
+        {
+            if (CountRoadNeighbours(cell) == 1) ends.Add(cell);
+        }
+
+        return ends;
+    }
+
+    bool TryExtendToNetwork(Vector2Int end)
+    {
+        Vector2Int heading = HeadingAwayFromRoad(end);
+
+        Vector2Int[] options =
+        {
+            heading, Perpendicular(heading), -Perpendicular(heading)
+        };
+
+        Vector2Int bestDir = Vector2Int.zero;
+        int bestSteps = 0;
+
+        foreach (Vector2Int dir in options)
+        {
+            int steps = MeasureConnection(end, dir);
+
+            if (steps == 0) continue;
+            if (bestSteps != 0 && steps >= bestSteps) continue;
+
+            bestSteps = steps;
+            bestDir = dir;
+        }
+
+        if (bestSteps == 0) return false;
+
+        Vector2Int pos = end;
+
+        for (int i = 0; i < bestSteps; i++)
+        {
+            pos += bestDir;
+            SetRoad(pos, bestDir);
+        }
+
+        return true;
+    }
+
+    int MeasureConnection(Vector2Int from, Vector2Int dir)
+    {
+        Vector2Int cell = from;
+
+        for (int step = 1; step <= maxConnectDistance; step++)
+        {
+            cell += dir;
+
+            if (!IsInsideGrid(cell)) return 0;
+
+            if (IsRoad(cell)) return step;
+
+            if (!CanPlaceRoad(cell, dir)) return 0;
+        }
+
+        return 0;
+    }
+
+    void TrimCulDeSac(Vector2Int end, Vector2Int centre)
+    {
+        Vector2Int cell = end;
+
+        while (IsRoad(cell) && cell != centre && CountRoadNeighbours(cell) <= 1)
+        {
+            Vector2Int next = FirstRoadNeighbour(cell);
+
+            ClearRoad(cell);
+
+            if (next == cell) break;
+
+            cell = next;
+        }
+    }
+
+    void ClearRoad(Vector2Int cell)
+    {
+        if (!IsInsideGrid(cell)) return;
+
+        grid[cell.x, cell.y] = 0;
+        roadNetwork.Remove(cell);
+        roadDirections.Remove(cell);
+    }
+
+    Vector2Int HeadingAwayFromRoad(Vector2Int cell)
+    {
+        Vector2Int neighbour = FirstRoadNeighbour(cell);
+
+        return cell - neighbour;
+    }
+
+    Vector2Int FirstRoadNeighbour(Vector2Int cell)
+    {
+        foreach (Vector2Int step in neighbourSteps)
+        {
+            if (IsRoad(cell + step)) return cell + step;
+        }
+
+        return cell;
+    }
+
+    int CountRoadNeighbours(Vector2Int cell)
+    {
+        int count = 0;
+
+        foreach (Vector2Int step in neighbourSteps)
+        {
+            if (IsRoad(cell + step)) count++;
+        }
+
+        return count;
+    }
+
+    bool IsOnGridEdge(Vector2Int cell)
+    {
+        return cell.x == 0 || cell.y == 0 || cell.x == width - 1 || cell.y == height - 1;
     }
 
     void BranchStreets(int count, int minLength, int maxLength)
@@ -269,6 +475,8 @@ public class ProceduralMapManager : MonoBehaviour
             return;
         }
 
+        WarnAboutMissingRoadPrefabs();
+
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
@@ -277,26 +485,135 @@ public class ProceduralMapManager : MonoBehaviour
 
                 Vector3 pos = new Vector3(x * cellSize, 0f, z * cellSize);
 
+                GameObject prefab = PickRoadPrefab(GetRoadLinks(x, z), out float yaw);
+
                 GameObject road = Instantiate(
-                    roadStraightPrefab,
+                    prefab,
                     pos,
-                    RoadTileRotation(new Vector2Int(x, z)),
+                    Quaternion.Euler(0f, yaw, 0f),
                     roadsParent
                 );
 
-                road.transform.localScale = new Vector3(cellSize, 0.3f, cellSize);
+                road.transform.localScale = new Vector3(cellSize, roadThickness, cellSize);
+                road.name = prefab.name + "_" + x + "_" + z;
             }
         }
     }
 
-    Quaternion RoadTileRotation(Vector2Int cell)
+    void WarnAboutMissingRoadPrefabs()
     {
-        if (!roadDirections.TryGetValue(cell, out Vector2Int dir))
-            return Quaternion.identity;
+        bool anyMissing =
+            roadCornerLeftPrefab == null ||
+            roadCornerRightPrefab == null ||
+            roadTJunctionPrefab == null ||
+            roadCrossroadsPrefab == null;
 
-        bool runsEastWest = dir.x != 0;
+        if (!anyMissing) return;
 
-        return runsEastWest ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
+        Debug.LogWarning(
+            "Some road prefabs are unassigned; those tiles fall back to the straight road.",
+            this
+        );
+    }
+
+    RoadLinks GetRoadLinks(int x, int z)
+    {
+        RoadLinks links = RoadLinks.None;
+
+        if (IsRoad(new Vector2Int(x, z + 1))) links |= RoadLinks.North;
+        if (IsRoad(new Vector2Int(x + 1, z))) links |= RoadLinks.East;
+        if (IsRoad(new Vector2Int(x, z - 1))) links |= RoadLinks.South;
+        if (IsRoad(new Vector2Int(x - 1, z))) links |= RoadLinks.West;
+
+        return links;
+    }
+
+    GameObject PickRoadPrefab(RoadLinks links, out float yaw)
+    {
+        switch (CountLinks(links))
+        {
+            case 4:
+                return MatchRoadPrefab(roadCrossroadsPrefab, crossroadsLinks, links, out yaw);
+
+            case 3:
+                return MatchRoadPrefab(roadTJunctionPrefab, tJunctionLinks, links, out yaw);
+
+            case 2 when links != straightLinks && links != (RoadLinks.East | RoadLinks.West):
+                bool mirrored = UseLeftHandCorner();
+
+                return MatchRoadPrefab(
+                    mirrored ? roadCornerLeftPrefab : roadCornerRightPrefab,
+                    mirrored ? cornerLeftLinks : cornerRightLinks,
+                    links,
+                    out yaw
+                );
+
+            default:
+                yaw = StraightYaw(links);
+                return roadStraightPrefab;
+        }
+    }
+
+    bool UseLeftHandCorner()
+    {
+        if (roadCornerLeftPrefab == null) return false;
+        if (roadCornerRightPrefab == null) return true;
+
+        return UnityEngine.Random.value < 0.5f;
+    }
+
+    GameObject MatchRoadPrefab(GameObject prefab, RoadLinks prefabLinks, RoadLinks links, out float yaw)
+    {
+        if (prefab != null)
+        {
+            for (int turns = 0; turns < linkOrder.Length; turns++)
+            {
+                if (RotateLinks(prefabLinks, turns) != links) continue;
+
+                yaw = turns * 90f;
+
+                return prefab;
+            }
+        }
+
+        yaw = StraightYaw(links);
+
+        return roadStraightPrefab;
+    }
+
+    float StraightYaw(RoadLinks links)
+    {
+        bool roadRunsEastWest =
+            (links & (RoadLinks.East | RoadLinks.West)) != RoadLinks.None &&
+            (links & (RoadLinks.North | RoadLinks.South)) == RoadLinks.None;
+
+        return roadRunsEastWest != straightPrefabRunsEastWest ? 90f : 0f;
+    }
+
+    static RoadLinks RotateLinks(RoadLinks links, int quarterTurns)
+    {
+        RoadLinks rotated = RoadLinks.None;
+
+        for (int i = 0; i < linkOrder.Length; i++)
+        {
+            if ((links & linkOrder[i]) == RoadLinks.None) continue;
+
+            rotated |= linkOrder[(i + quarterTurns) % linkOrder.Length];
+        }
+
+        return rotated;
+    }
+
+    static int CountLinks(RoadLinks links)
+    {
+        int count = 0;
+        
+        foreach (RoadLinks link in linkOrder)
+        {
+            if ((links & link) != RoadLinks.None) count++;
+        }
+
+        return count;
     }
 
     void SpawnHouses()
