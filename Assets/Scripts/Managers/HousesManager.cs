@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HousesManager : MonoBehaviour
@@ -14,10 +14,26 @@ public class HousesManager : MonoBehaviour
     [SerializeField] private int boyZonesCount = 5;
     [SerializeField] private int witchZonesCount = 5;
 
+    [Tooltip("Child object on a house that marks the street-facing spot where a zone sits.")]
+    [SerializeField] private string frontMarkerName = "Front";
+
+    [Tooltip("How far above the front marker the zone is placed.")]
+    [SerializeField] private float zoneHeightOffset = 0.2f;
+
+    [Tooltip("Rest the zone on the base of the house rather than at the marker's own height. " +
+             "House pivots are often at the centre of the mesh, which leaves a marker floating mid-wall.")]
+    [SerializeField] private bool alignToHouseBase = true;
+
+    [Header("Extra Houses")]
+    [Tooltip("Optional roots whose active children join the procedural houses as zone candidates.")]
+    [SerializeField] private Transform[] additionalHouseParents;
+
     void OnEnable()
     {
         if (mapManager != null)
             mapManager.OnHousesGenerated += GenerateZones;
+        else
+            Debug.LogError("No map manager assigned; delivery zones will not be generated.");
     }
 
     void OnDisable()
@@ -26,63 +42,230 @@ public class HousesManager : MonoBehaviour
             mapManager.OnHousesGenerated -= GenerateZones;
     }
 
-    void GenerateZones(List<Transform> houses)
+    void GenerateZones(IReadOnlyList<Transform> houses)
     {
-        if (houses == null || houses.Count == 0)
+        ValidateZonePrefab(deliveryZoneBoyPrefab, nameof(deliveryZoneBoyPrefab));
+        ValidateZonePrefab(deliveryZoneWitchPrefab, nameof(deliveryZoneWitchPrefab));
+
+        List<Transform> candidates = CollectCandidates(houses, out int rejected);
+
+        if (candidates.Count == 0)
         {
-            Debug.LogError("No houses found");
+            Debug.LogError(
+                $"None of the {rejected} house(s) checked have a '{frontMarkerName}' object anywhere in " +
+                $"their hierarchy; no delivery zones spawned. Add that child to the house prefabs, or set " +
+                $"Front Marker Name to whatever the marker is actually called.", this);
             return;
         }
 
-        Debug.Log("Houses received: " + houses.Count);
+        if (rejected > 0)
+            Debug.LogWarning($"{rejected} house(s) skipped: no '{frontMarkerName}' object found.", this);
 
-        Shuffle(houses);
+        Debug.Log($"Houses eligible for delivery zones: {candidates.Count}");
 
+        Shuffle(candidates);
+
+        int boyTarget = Mathf.Max(0, boyZonesCount);
+        int witchTarget = Mathf.Max(0, witchZonesCount);
+
+        int boyPlaced = 0;
+        int witchPlaced = 0;
         int index = 0;
 
-        // Boy Zones
-        for (int i = 0; i < boyZonesCount && index < houses.Count; i++, index++)
+        while (index < candidates.Count && (boyPlaced < boyTarget || witchPlaced < witchTarget))
         {
-            SpawnZone(
-                houses[index],
-                deliveryZoneBoyPrefab,
-                OwnerType.Boy
-            );
+            bool placeBoy = boyPlaced < boyTarget && (witchPlaced >= witchTarget || boyPlaced <= witchPlaced);
+
+            Transform house = candidates[index++];
+
+            if (placeBoy)
+            {
+                if (SpawnZone(house, deliveryZoneBoyPrefab, OwnerType.Boy))
+                    boyPlaced++;
+            }
+            else
+            {
+                if (SpawnZone(house, deliveryZoneWitchPrefab, OwnerType.Witch))
+                    witchPlaced++;
+            }
         }
 
-        // Witch Zones
-        for (int i = 0; i < witchZonesCount && index < houses.Count; i++, index++)
+        if (boyPlaced < boyTarget || witchPlaced < witchTarget)
         {
-            SpawnZone(
-                houses[index],
-                deliveryZoneWitchPrefab,
-                OwnerType.Witch
-            );
+            Debug.LogWarning(
+                $"Spawned fewer delivery zones than requested: " +
+                $"Boy {boyPlaced}/{boyTarget}, Witch {witchPlaced}/{witchTarget}. " +
+                $"Only {candidates.Count} eligible house(s) were available.", this);
+        }
+        else
+        {
+            Debug.Log($"Delivery zones spawned: Boy {boyPlaced}, Witch {witchPlaced}");
         }
     }
 
-    void SpawnZone(Transform house, GameObject prefab, OwnerType owner)
+    List<Transform> CollectCandidates(IReadOnlyList<Transform> houses, out int rejected)
     {
-        Transform front = house.Find("Front");
+        rejected = 0;
 
-        if (front == null)
+        List<Transform> candidates = new List<Transform>();
+
+        if (houses != null)
         {
-            Debug.LogError($"'Front' not found on {house.name}");
+            for (int i = 0; i < houses.Count; i++)
+                AddCandidate(houses[i], candidates, ref rejected);
+        }
+
+        if (additionalHouseParents != null)
+        {
+            foreach (Transform parent in additionalHouseParents)
+            {
+                if (parent == null) continue;
+
+                foreach (Transform child in parent)
+                {
+                    if (!child.gameObject.activeInHierarchy) continue;
+
+                    AddCandidate(child, candidates, ref rejected);
+                }
+            }
+        }
+
+        return candidates;
+    }
+
+    void AddCandidate(Transform house, List<Transform> candidates, ref int rejected)
+    {
+        if (house == null) return;
+
+        if (FindFrontMarker(house) == null)
+        {
+            if (rejected == 0)
+            {
+                Debug.LogWarning(
+                    $"Marker '{frontMarkerName}' [{CharCodes(frontMarkerName)}] not found on " +
+                    $"'{house.name}'. Its children are: {DescribeChildren(house)}", house);
+            }
+
+            rejected++;
             return;
         }
 
-        GameObject zone = Instantiate(
-            prefab,
-            front.position + front.up * 0.2f,
-            front.rotation
-        );
+        if (!candidates.Contains(house))
+            candidates.Add(house);
+    }
+
+    Transform FindFrontMarker(Transform house)
+    {
+        Transform direct = house.Find(frontMarkerName);
+
+        if (direct != null) return direct;
+
+        foreach (Transform candidate in house.GetComponentsInChildren<Transform>(true))
+        {
+            if (candidate != house && NameMatchesMarker(candidate.name))
+                return candidate;
+        }
+
+        return null;
+    }
+
+    bool NameMatchesMarker(string name)
+    {
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(frontMarkerName))
+            return false;
+
+        return string.Equals(name.Trim(), frontMarkerName.Trim(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    string DescribeChildren(Transform house)
+    {
+        if (house.childCount == 0) return "(no children)";
+
+        List<string> described = new List<string>(house.childCount);
+
+        foreach (Transform child in house)
+            described.Add($"'{child.name}' [{CharCodes(child.name)}]");
+
+        return string.Join(", ", described);
+    }
+
+    string CharCodes(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return "empty";
+
+        List<string> codes = new List<string>(value.Length);
+
+        foreach (char c in value)
+            codes.Add(((int)c).ToString());
+
+        return string.Join(" ", codes);
+    }
+
+    bool SpawnZone(Transform house, GameObject prefab, OwnerType owner)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError($"No delivery zone prefab assigned for {owner}.", this);
+            return false;
+        }
+
+        Transform front = FindFrontMarker(house);
+
+        if (front == null)
+        {
+            Debug.LogError($"'{frontMarkerName}' not found on {house.name}", house);
+            return false;
+        }
+
+        Vector3 position = front.position + front.up * zoneHeightOffset;
+
+        if (alignToHouseBase && TryGetHouseBaseY(house, out float baseY))
+            position.y = baseY + zoneHeightOffset;
+
+        GameObject zone = Instantiate(prefab, position, front.rotation);
 
         zone.transform.SetParent(front);
 
         NewspaperDelivery delivery = zone.GetComponent<NewspaperDelivery>();
-        if (delivery != null)
+
+        if (delivery == null)
         {
-            delivery.allowedOwner = owner;
+            Debug.LogError($"{prefab.name} has no NewspaperDelivery component.", zone);
+            return false;
+        }
+
+        delivery.Configure(owner);
+
+        return true;
+    }
+
+    bool TryGetHouseBaseY(Transform house, out float baseY)
+    {
+        baseY = 0f;
+
+        Renderer[] renderers = house.GetComponentsInChildren<Renderer>();
+
+        if (renderers.Length == 0) return false;
+
+        Bounds bounds = renderers[0].bounds;
+
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        baseY = bounds.min.y;
+
+        return true;
+    }
+
+    void ValidateZonePrefab(GameObject prefab, string fieldName)
+    {
+        if (prefab == null) return;
+
+        if (prefab.scene.IsValid())
+        {
+            Debug.LogWarning(
+                $"{fieldName} points at the scene object '{prefab.name}' instead of a prefab asset. " +
+                $"Assign the prefab from the Project window.", this);
         }
     }
 
@@ -90,7 +273,7 @@ public class HousesManager : MonoBehaviour
     {
         for (int i = 0; i < list.Count; i++)
         {
-            int rand = Random.Range(i, list.Count);
+            int rand = UnityEngine.Random.Range(i, list.Count);
 
             var temp = list[i];
             list[i] = list[rand];

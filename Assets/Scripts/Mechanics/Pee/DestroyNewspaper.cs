@@ -4,21 +4,24 @@ public class DestroyNewspaper : MonoBehaviour
 {
     [SerializeField] GameObject newspaperDestroyedModel;
 
+    NewspaperDelivery delivery;
+
+    void Awake()
+    {
+        delivery = GetComponentInParent<NewspaperDelivery>();
+    }
+
     private void OnParticleCollision(GameObject other)
     {
-        if (other.CompareTag("Pee"))
-        {
-            this.gameObject.SetActive(false);
-            newspaperDestroyedModel.SetActive(true);
-        }
+        if (!other.CompareTag("Pee"))
+            return;
 
-        /*    if (wasDelivered)
-        {
-            if (other.CompareTag("Pee"))
-            {
-            }
-            else
-                Debug.Log("Nothing to pee on!");
-        }*/
+        if (delivery != null)
+            delivery.NotifyNewspaperDestroyed();
+
+        this.gameObject.SetActive(false);
+
+        if (newspaperDestroyedModel != null)
+            newspaperDestroyedModel.SetActive(true);
     }
 }
