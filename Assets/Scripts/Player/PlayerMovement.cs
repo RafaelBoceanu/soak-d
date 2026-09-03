@@ -13,12 +13,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float sprintSpeed = 4.0f;
     [SerializeField] private float rotationSpeed = 10.0f;
 
+    [Header("Aiming")]
+    [Tooltip("How fast the character turns to face the aim direction while aiming.")]
+    [SerializeField] private float aimRotationSpeed = 20.0f;
+    [Tooltip("When off, the character only snaps to the aim direction while standing still " +
+             "and keeps facing its movement direction while walking.")]
+    [SerializeField] private bool faceAimWhileMoving = true;
+
     [Header("Animation Settings")]
     [SerializeField] private float animSmoothTime = 0.1f;
 
     [Header("Gravity")]
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float groundedOffset = -2f;
+
+    private const float MoveDeadzone = 0.1f;
 
     private float verticalVelocity;
 
@@ -27,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 inputVector = Vector3.zero;
     private bool isSprinting = false;
+    private bool isAiming = false;
 
     private void Awake()
     {
@@ -35,6 +45,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+    }
+
+    private void OnDisable()
+    {
+        isAiming = false;
     }
 
     private void Update()
@@ -63,6 +78,8 @@ public class PlayerMovement : MonoBehaviour
         //Build movement vector
         Vector3 move = camForward * inputVector.z + camRight * inputVector.x;
         move = Vector3.ClampMagnitude(move, 1f);
+
+        bool isMoving = move.magnitude >= MoveDeadzone;
 
         float targetSpeed = isSprinting ? sprintSpeed : speed;
         float targetAnimSpeed = move.magnitude * targetSpeed;
@@ -93,22 +110,39 @@ public class PlayerMovement : MonoBehaviour
         Vector3 verticalMove = Vector3.up * verticalVelocity;
 
         //Movement + gravity combined
-        if (move.magnitude >= 0.1f)
+        if (isMoving)
         {
             controller.Move((move * targetSpeed + verticalMove) * Time.deltaTime);
-
-            //Rotate towards movement
-            Quaternion targetRotation = Quaternion.LookRotation(move, Vector3.up);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
         }
         else
         {
             controller.Move(verticalMove * Time.deltaTime);
         }
+
+        if (isAiming && (faceAimWhileMoving || !isMoving))
+        {
+            FaceDirection(camForward, aimRotationSpeed);
+        }
+        else if (isMoving)
+        {
+            FaceDirection(move, rotationSpeed);
+        }
+    }
+
+    private void FaceDirection(Vector3 direction, float turnSpeed)
+    {
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            1f - Mathf.Exp(-turnSpeed * Time.deltaTime)
+        );
     }
   
     //Called by PlayerInputHandler
@@ -120,5 +154,10 @@ public class PlayerMovement : MonoBehaviour
     public void SetSprint(bool sprinting)
     {
         isSprinting = sprinting;
+    }
+
+    public void SetAiming(bool aiming)
+    {
+        isAiming = aiming;
     }
 }

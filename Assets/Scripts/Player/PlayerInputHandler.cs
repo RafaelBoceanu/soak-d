@@ -45,6 +45,8 @@ public class PlayerInputHandler : MonoBehaviour
         if (input == null)
             return;
 
+        playerMovement.SetAiming(input.Aim && bike == null && broom == null);
+
         // Mount / Dismount
         if (input.InteractPressed)
         {
