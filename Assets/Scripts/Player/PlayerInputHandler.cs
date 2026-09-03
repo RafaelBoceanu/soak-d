@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    [Header("Input Axes")]
-    [SerializeField] private string horizontalAxis;
-    [SerializeField] private string verticalAxis;
+    [Header("Player")]
+    [Tooltip("Identifies this character. The input manager pairs one owner with keyboard and mouse and the other with the gamepad.")]
+    [SerializeField] private OwnerType owner = OwnerType.Boy;
 
-    [Header("Input Buttons")]
-    [SerializeField] private string sprintButton;
-    [SerializeField] private string interactButton;
+    [Header("References")]
+    [Tooltip("Camera rig of this player. Left empty, the rig registered for the same owner is used.")]
+    [SerializeField] private PlayersCameraController cameraController;
 
     private PlayerMovement playerMovement;
 
@@ -19,6 +19,13 @@ public class PlayerInputHandler : MonoBehaviour
     private MountableVehicle currentVehicle;
     
     private List<MountableVehicle> nearbyVehicles = new List<MountableVehicle>();
+
+    public OwnerType Owner => owner;
+
+    public PlayerInputContext Controls => TwoPlayerInputManager.GetPlayer(owner);
+
+    public PlayersCameraController CameraController =>
+        cameraController != null ? cameraController : PlayersCameraController.ForOwner(owner);
 
     void Awake()
     {
@@ -33,13 +40,18 @@ public class PlayerInputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        PlayerInputContext input = Controls;
+
+        if (input == null)
+            return;
+
         // Mount / Dismount
-        if (Input.GetButtonDown(interactButton))
+        if (input.InteractPressed)
         {
             if (currentVehicle != null && currentVehicle.IsDriver(this))
             {
-                currentVehicle.Dismount(this);
-                currentVehicle = null;
+                if (currentVehicle.Dismount(this))
+                    currentVehicle = null;
                 return;
             }
 
@@ -55,37 +67,27 @@ public class PlayerInputHandler : MonoBehaviour
         }
 
         // Movement input
-        float x = Input.GetAxis(horizontalAxis);
-        float z = Input.GetAxis(verticalAxis);
-
-        // Sprint input
-        bool isSprinting = Input.GetButton(sprintButton);
+        Vector2 move = input.Move;
 
         // Bike Control
         if (bike != null)
         {
-            bool brake = Input.GetKey(KeyCode.Space);
-            bike.SetInput(z, x, brake);
+            bike.SetInput(move.y, move.x, input.Brake);
             return;
         }
 
         // Broom Control
         if (broom != null)
         {
-            float roll = Input.GetAxis("Roll");
-            float pitch = Input.GetAxis("Pitch");
-            float yaw = Input.GetAxis("Yaw");
+            float throttle = input.Throttle;
 
-            bool throttleUp = Input.GetKey(KeyCode.Space);
-            bool throttleDown = Input.GetKey(KeyCode.LeftControl);
-
-            broom.SetInput(roll, pitch, yaw, throttleUp, throttleDown);
+            broom.SetInput(move.x, move.y, input.Yaw, throttle > 0.5f, throttle < -0.5f);
             return;
         }
 
         // Player Control
-        playerMovement.SetInputVector(new Vector3(x, 0f, z));
-        playerMovement.SetSprint(isSprinting);
+        playerMovement.SetInputVector(new Vector3(move.x, 0f, move.y));
+        playerMovement.SetSprint(input.Sprint);
     }
 
     // Assign bike

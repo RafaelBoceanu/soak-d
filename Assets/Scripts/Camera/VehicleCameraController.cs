@@ -16,10 +16,9 @@ public class VehicleCameraController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) index = 0;
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) index = 1;
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) index = 2;
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) index = 3;
+        // Shared vehicle camera: either player can cycle through the mounted views
+        if (positions != null && positions.Length > 0 && TwoPlayerInputManager.AnyCycleViewPressed())
+            index = (index + 1) % positions.Length;
     }
 
     private void LateUpdate()

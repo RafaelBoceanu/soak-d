@@ -15,21 +15,14 @@ public class HandcarMovement : MonoBehaviour
     private int currentSegment = 0;
     private float t = 0f; // Interpolation between waypoints
     private int handleDirection = 0;
-    [SerializeField] private KeyCode lastKey = KeyCode.None;
+    private int lastDirection = 0;
     private Coroutine resetAnimCoroutine;
 
     // Update is called once per frame
     void Update()
     {
         // Increase speed on button tap
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && lastKey != KeyCode.LeftArrow)
-        {
-           PumpHandle(-1, KeyCode.LeftArrow);
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow) && lastKey != KeyCode.RightArrow)
-        {
-            PumpHandle(1, KeyCode.RightArrow);
-        }
+        ReadPumpInput();
 
         // Decrease speed over time
         speed = Mathf.MoveTowards(speed, 0, deceleration * Time.deltaTime);
@@ -63,13 +56,36 @@ public class HandcarMovement : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(dir);
     }
 
-    private void PumpHandle(int direction, KeyCode key)
+    private void ReadPumpInput()
+    {
+        foreach (OwnerType owner in TwoPlayerInputManager.Owners)
+        {
+            PlayerInputContext input = TwoPlayerInputManager.GetPlayer(owner);
+
+            if (input == null)
+                continue;
+
+            if (input.PumpLeftPressed && lastDirection != -1)
+            {
+                PumpHandle(-1);
+                return;
+            }
+
+            if (input.PumpRightPressed && lastDirection != 1)
+            {
+                PumpHandle(1);
+                return;
+            }
+        }
+    }
+
+    private void PumpHandle(int direction)
     {
         speed += acceleration;
         speed = Mathf.Clamp(speed, 0, maxSpeed);
 
         handleDirection = direction;
-        lastKey = key;
+        lastDirection = direction;
 
         if (animator != null)
             animator.SetInteger("HandleDirection", handleDirection);

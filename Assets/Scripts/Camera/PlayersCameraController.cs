@@ -1,14 +1,25 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayersCameraController : MonoBehaviour
 {
+    [Header("Player")]
+    [Tooltip("Which player this camera belongs to. It only reads that player's look input.")]
+    [SerializeField] OwnerType owner = OwnerType.Boy;
+
     [SerializeField] Transform followTarget;
     [SerializeField] float distanceToTarget = 7f;
     [SerializeField] float minVerticalAngle = -20f;
     [SerializeField] float maxVerticalAngle = 60f;
     [SerializeField] Vector2 framingOffset = new Vector2(0, 1f);
-    [SerializeField] float mouseSensitivity = 0.7f;
+
+    [Header("Look Sensitivity")]
+    [Tooltip("Degrees per pixel of mouse movement.")]
+    [SerializeField] float mouseSensitivity = 0.3f;
+    [Tooltip("Degrees per second at full stick deflection.")]
+    [SerializeField] float gamepadSensitivity = 220f;
+    [SerializeField] bool invertVertical = false;
+
     [SerializeField] float smoothTime = 0.3f;
 
     float rotationX = 20f;
@@ -20,6 +31,31 @@ public class PlayersCameraController : MonoBehaviour
     Vector3 lookVelocity;
     [SerializeField] float lookSmoothTime = 0.05f;
     [SerializeField] float rotationSharpness = 20f;
+
+    static readonly Dictionary<OwnerType, PlayersCameraController> rigs =
+        new Dictionary<OwnerType, PlayersCameraController>();
+
+    public OwnerType Owner => owner;
+
+    public static PlayersCameraController ForOwner(OwnerType owner) =>
+        rigs.TryGetValue(owner, out PlayersCameraController rig) ? rig : null;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        rigs.Clear();
+    }
+
+    void Awake()
+    {
+        rigs[owner] = this;
+    }
+
+    void OnDestroy()
+    {
+        if (ForOwner(owner) == this)
+            rigs.Remove(owner);
+    }
 
     void Start()
     {
@@ -33,9 +69,7 @@ public class PlayersCameraController : MonoBehaviour
     {
         if (followTarget == null) return;
 
-        rotationY += Input.GetAxis("Mouse X") * mouseSensitivity * 100f * Time.deltaTime;
-        rotationX -= Input.GetAxis("Mouse Y") * mouseSensitivity * 100f * Time.deltaTime;
-        rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
+        ApplyLook();
 
         Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0);
         Vector3 offset = rotation * new Vector3(0, 0, -distanceToTarget);
@@ -56,6 +90,24 @@ public class PlayersCameraController : MonoBehaviour
             Quaternion.LookRotation(toTarget),
             1f - Mathf.Exp(-rotationSharpness * Time.deltaTime)
         );
+    }
+
+    private void ApplyLook()
+    {
+        PlayerInputContext input = TwoPlayerInputManager.GetPlayer(owner);
+
+        if (input == null)
+            return;
+
+        Vector2 look = input.Look;
+
+        Vector2 degrees = input.LookIsDelta
+            ? look * mouseSensitivity
+            : look * gamepadSensitivity * Time.deltaTime;
+
+        rotationY += degrees.x;
+        rotationX += invertVertical ? degrees.y : -degrees.y;
+        rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
     }
 
     public void SetFollowTarget(Transform newTarget)

@@ -48,6 +48,37 @@ public class BicycleController : MonoBehaviour
             sphereRB.WakeUp();
             bicycleBody.WakeUp();
         }
+        else
+        {
+            Park();
+        }
+    }
+
+    public void Park()
+    {
+        moveInput = 0f;
+        steerInput = 0f;
+        isBraking = false;
+        velocity = Vector3.zero;
+        currentVelocityOffset = 0f;
+
+        if (sphereRB != null)
+        {
+            sphereRB.linearVelocity = Vector3.zero;
+            sphereRB.angularVelocity = Vector3.zero;
+        }
+
+        if (bicycleBody != null)
+        {
+            bicycleBody.linearVelocity = Vector3.zero;
+            bicycleBody.angularVelocity = Vector3.zero;
+        }
+
+        if (skidTrail != null)
+            skidTrail.emitting = false;
+
+        if (cranksAnimator != null)
+            cranksAnimator.SetFloat("CrankSpeed", 0f);
     }
 
     public void SetInput(float move, float steer, bool brake)

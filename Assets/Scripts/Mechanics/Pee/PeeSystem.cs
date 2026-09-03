@@ -3,8 +3,8 @@ using UnityEngine;
 public class PeeSystem : MonoBehaviour
 {
     [Header("Input")]
-    [SerializeField] private string zipButton;
-    [SerializeField] private string peeButton;
+    [Tooltip("Which player owns this character. Left at the default it is taken from the PlayerInputHandler on this object.")]
+    [SerializeField] private OwnerType owner = OwnerType.Boy;
 
     [Header("Pee Settings")]
     [SerializeField] private float peeThreshold = 0.2f;
@@ -26,6 +26,16 @@ public class PeeSystem : MonoBehaviour
 
     private ParticleSystem.EmissionModule emission;
     private ParticleSystem.MainModule main;
+
+    private PlayerInputContext Controls => TwoPlayerInputManager.GetPlayer(owner);
+
+    void Awake()
+    {
+        PlayerInputHandler inputHandler = GetComponent<PlayerInputHandler>();
+
+        if (inputHandler != null)
+            owner = inputHandler.Owner;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -57,7 +67,14 @@ public class PeeSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown(zipButton))
+        PlayerInputContext input = Controls;
+
+        if (input == null)
+        {
+            return;
+        }
+
+        if (input.ZipPressed)
         {
             zipperClosed = !zipperClosed;
 
@@ -76,7 +93,7 @@ public class PeeSystem : MonoBehaviour
             }
             UpdateCensor();
 
-            Debug.Log(zipButton + " zipper closed: " + zipperClosed);
+            Debug.Log($"{owner} zipper closed: {zipperClosed}");
         }
 
         float pee = playerNeeds.pee;
@@ -87,7 +104,7 @@ public class PeeSystem : MonoBehaviour
 
         if (!zipperClosed && hasPeeLeft && (canStartPeeing || isPeeing))
         {
-            if (Input.GetButton(peeButton))
+            if (input.Pee)
             {
                 StartPeeing();
                 playerNeeds.Pee(1f * Time.deltaTime);

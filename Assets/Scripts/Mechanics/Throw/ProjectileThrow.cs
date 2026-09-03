@@ -46,7 +46,12 @@ public class ProjectileThrow : MonoBehaviour
 
     void Update()
     {
-        bool aimButton = Input.GetMouseButton(1);
+        PlayerInputContext input = TwoPlayerInputManager.GetPlayer(owner);
+
+        if (input == null)
+            return;
+
+        bool aimButton = input.Aim;
 
         if (crosshairUI != null)
             crosshairUI.SetActive(aimButton);
@@ -59,12 +64,12 @@ public class ProjectileThrow : MonoBehaviour
                 currentForce = minForce;
             }
 
-            if (Input.GetMouseButtonDown(0))
+            if (input.ThrowPressed)
             {
                 isCharging = true;
             }
 
-            if (isCharging && Input.GetMouseButton(0))
+            if (isCharging && input.ThrowHeld)
             {
                 currentForce += chargeRate * Time.deltaTime;
                 currentForce = Mathf.Clamp(currentForce, 0f, maxForce);
@@ -80,7 +85,7 @@ public class ProjectileThrow : MonoBehaviour
             projectileTrajectory.SetTrajectoryVisible(false);
         }
 
-        if (isCharging && Input.GetMouseButtonUp(0))
+        if (isCharging && input.ThrowReleased)
         {
             ThrowObject();
             currentForce = 0f;

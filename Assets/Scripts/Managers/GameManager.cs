@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
                 UpdateGameState(GameState.Handcar);
         }*/
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (TwoPlayerInputManager.AnyPausePressed())
         {
             if (gameState != GameState.Pause)
             {

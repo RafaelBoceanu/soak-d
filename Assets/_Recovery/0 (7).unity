@@ -3147,7 +3147,7 @@ GameObject:
   - component: {fileID: 391078720}
   - component: {fileID: 391078723}
   m_Layer: 0
-  m_Name: WitchCamera
+  m_Name: 'WitchCamera '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3283,15 +3283,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aff07542001ce514c955e4f27eb9f43a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 1
   followTarget: {fileID: 541694498}
   distanceToTarget: 5
   minVerticalAngle: -20
   maxVerticalAngle: 45
   framingOffset: {x: 0.5, y: 1}
-  mouseSensitivity: 0.3
-  gamepadSensitivity: 220
-  invertVertical: 0
+  mouseSensitivity: 2
   smoothTime: 0.15
   lookSmoothTime: 0.05
   rotationSharpness: 20
@@ -4518,8 +4515,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 680acee81c4eb94438f2257f9f548ea5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 1
-  cameraController: {fileID: 391078723}
+  horizontalAxis: Horizontal_Witch
+  verticalAxis: Vertical_Witch
+  sprintButton: Sprint_Witch
+  interactButton: Interact_Witch
 --- !u!114 &541694503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4681,7 +4680,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c48249e942b37b94e9db252832cc278f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 1
+  zipButton: Zip_Witch
+  peeButton: Pee_Witch
   peeThreshold: 5
   minPeeValue: 0.01
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
@@ -7755,7 +7755,6 @@ Transform:
   - {fileID: 466912800}
   - {fileID: 581249837}
   - {fileID: 1697544007}
-  - {fileID: 965349794}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &932146329
@@ -8259,54 +8258,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &965349793
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 965349794}
-  - component: {fileID: 965349795}
-  m_Layer: 0
-  m_Name: InputManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &965349794
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 965349793}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 929227071}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &965349795
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 965349793}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6c6cba5ed63c5a4191acbeef97af7ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TwoPlayerInputManager
-  controls: {fileID: 0}
-  keyboardMousePlayer: 0
-  keyboardFallbackWhenNoGamepad: 1
-  logDeviceChanges: 1
 --- !u!1 &966276050
 GameObject:
   m_ObjectHideFlags: 0
@@ -13627,8 +13578,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 680acee81c4eb94438f2257f9f548ea5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 0
-  cameraController: {fileID: 1839225300}
+  horizontalAxis: Horizontal_Boy
+  verticalAxis: Vertical_Boy
+  sprintButton: Sprint_Boy
+  interactButton: Interact_Boy
 --- !u!114 &1552542201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13790,7 +13743,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c48249e942b37b94e9db252832cc278f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 0
+  zipButton: Zip_Boy
+  peeButton: Pee_Boy
   peeThreshold: 5
   minPeeValue: 0.01
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
@@ -17224,15 +17178,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aff07542001ce514c955e4f27eb9f43a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: 0
   followTarget: {fileID: 1552542196}
   distanceToTarget: 5
   minVerticalAngle: -20
   maxVerticalAngle: 45
   framingOffset: {x: 0.5, y: 1}
-  mouseSensitivity: 0.3
-  gamepadSensitivity: 220
-  invertVertical: 0
+  mouseSensitivity: 2
   smoothTime: 0.15
   lookSmoothTime: 0.05
   rotationSharpness: 20
@@ -18298,6 +18249,7 @@ MonoBehaviour:
   maxSpeed: 50
   animator: {fileID: 950201456}
   animationResetDelay: 1.1
+  lastKey: 0
 --- !u!54 &1921777838
 Rigidbody:
   m_ObjectHideFlags: 0
