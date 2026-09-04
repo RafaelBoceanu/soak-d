@@ -15,6 +15,7 @@ public class PlayerInputContext
     private readonly InputAction throwAction;
     private readonly InputAction zip;
     private readonly InputAction pee;
+    private readonly InputAction drink;
     private readonly InputAction brake;
     private readonly InputAction throttle;
     private readonly InputAction yaw;
@@ -54,6 +55,7 @@ public class PlayerInputContext
         throwAction = Find(map, "Throw");
         zip = Find(map, "Zip");
         pee = Find(map, "Pee");
+        drink = Find(map, "Drink");
         brake = Find(map, "Brake");
         throttle = Find(map, "Throttle");
         yaw = Find(map, "Yaw");
@@ -118,6 +120,7 @@ public class PlayerInputContext
     public bool ThrowReleased => Released(throwAction);
     public bool ZipPressed => Pressed(zip);
     public bool Pee => Held(pee);
+    public bool DrinkPressed => Pressed(drink);
     public bool Brake => Held(brake);
     public bool PumpLeftPressed => Pressed(pumpLeft);
     public bool PumpRightPressed => Pressed(pumpRight);

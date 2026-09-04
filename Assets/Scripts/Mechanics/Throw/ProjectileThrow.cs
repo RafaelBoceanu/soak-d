@@ -13,6 +13,16 @@ public class ProjectileThrow : MonoBehaviour
     [SerializeField] private OwnerType owner;
     [SerializeField] private float minForce = 5f;
 
+    [Header("Ammo")]
+    [Tooltip("Inventory item spent by one throw.")]
+    [SerializeField] private InventoryItemType ammoItem = InventoryItemType.Newspaper;
+
+    [Tooltip("Off, the player throws for free and the inventory is ignored.")]
+    [SerializeField] private bool requireAmmo = true;
+
+    [Tooltip("Inventory to spend from. Left empty it is taken from this object, then from the rig registered for the same owner.")]
+    [SerializeField] private PlayerInventory inventory;
+
     [Header("Aiming")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject crosshairUI;
@@ -22,6 +32,10 @@ public class ProjectileThrow : MonoBehaviour
 
     private float cachedMass;
     private float cachedDrag;
+
+    private bool warnedNoInventory;
+
+    public int AmmoLeft => inventory != null ? inventory.GetCount(ammoItem) : 0;
 
     void OnEnable()
     {
@@ -42,6 +56,8 @@ public class ProjectileThrow : MonoBehaviour
 
         if (crosshairUI != null)
             crosshairUI.SetActive(false);
+
+        ResolveInventory();
     }
 
     void Update()
@@ -52,11 +68,12 @@ public class ProjectileThrow : MonoBehaviour
             return;
 
         bool aimButton = input.Aim;
+        bool hasAmmo = HasAmmo();
 
         if (crosshairUI != null)
             crosshairUI.SetActive(aimButton);
 
-        if (aimButton)
+        if (aimButton && hasAmmo)
         {
             if (!isCharging)
             {
@@ -93,6 +110,41 @@ public class ProjectileThrow : MonoBehaviour
         }
     }
 
+    #region Ammo
+    PlayerInventory ResolveInventory()
+    {
+        if (inventory != null)
+            return inventory;
+
+        inventory = GetComponent<PlayerInventory>();
+
+        if (inventory == null)
+            inventory = GetComponentInParent<PlayerInventory>();
+
+        if (inventory == null)
+            inventory = PlayerInventory.ForOwner(owner);
+
+        if (inventory == null && requireAmmo && !warnedNoInventory)
+        {
+            warnedNoInventory = true;
+            Debug.LogError($"[ProjectileThrow] {name} needs a PlayerInventory for {owner} to spend {ammoItem} - " +
+                           $"throwing stays disabled until one is added (or untick RequireAmmo).", this);
+        }
+
+        return inventory;
+    }
+
+    bool HasAmmo()
+    {
+        if (!requireAmmo)
+            return true;
+
+        PlayerInventory playerInventory = ResolveInventory();
+
+        return playerInventory != null && playerInventory.Has(ammoItem);
+    }
+    #endregion
+
     void Predict()
     {
         projectileTrajectory.SetTrajectoryVisible(true);
@@ -122,6 +174,14 @@ public class ProjectileThrow : MonoBehaviour
     void ThrowObject()
     {
         if (!objectToThrow) return;
+
+        if (requireAmmo)
+        {
+            PlayerInventory playerInventory = ResolveInventory();
+
+            if (playerInventory == null || !playerInventory.TryConsume(ammoItem))
+                return;
+        }
 
         Rigidbody thrownObject = Instantiate(
             objectToThrow, 

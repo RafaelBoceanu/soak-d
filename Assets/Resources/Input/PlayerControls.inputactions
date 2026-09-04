@@ -78,6 +78,15 @@
                     "interactions": "",
                     "initialStateCheck": false
                 },
+				{
+                    "name": "Drink",
+                    "type": "Button",
+                    "id": "902e1ac7-8473-483e-ba9b-fe3f000f1170",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
                 {
                     "name": "Brake",
                     "type": "Button",
@@ -536,6 +545,39 @@
                     "processors": "",
                     "groups": "KeyboardAlt",
                     "action": "Pee",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+				 {
+                    "name": "",
+                    "id": "71e9bf75-a6d6-4856-83f7-eada33bd9a95",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Drink",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fdcede24-0863-4815-96c2-aeca68b8405b",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Drink",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d994b9ed-1a3d-4002-9d35-a755748d4746",
+                    "path": "<Keyboard>/numpad1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardAlt",
+                    "action": "Drink",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
