@@ -38,8 +38,14 @@ public class ProceduralMapManager : MonoBehaviour
     public float cellSize = 8f;
 
     [Header("House Settings")]
-    [Tooltip("World Y position at which houses are spawned")]
-    public float houseSpawnY = 3f;
+    [Tooltip("World Y the houses stand on. Each house is lifted by its own bounds so it " +
+             "rests on this height whatever its pivot is.")]
+    public float groundY = 0f;
+
+    [Tooltip("Distance from the centre of the road to the front wall of a house. Houses are " +
+             "pushed back by their own depth so shallow and deep models still line up along " +
+             "the street. Keep it above half a road tile or houses will sit on the tarmac.")]
+    public float houseSetback = 5f;
 
     [Header("Town Shape")]
     [Tooltip("How many primary roads branch from the town centre")]
@@ -117,7 +123,21 @@ public class ProceduralMapManager : MonoBehaviour
     private List<Vector2Int> branchOrigins = new List<Vector2Int>();
 
     private Dictionary<Vector2Int, Vector2Int> roadDirections = new Dictionary<Vector2Int, Vector2Int>();
-    private List<GameObject> validHousePrefabs = new List<GameObject>();
+    private List<HousePrefab> validHousePrefabs = new List<HousePrefab>();
+
+    private readonly struct HousePrefab
+    {
+        public readonly GameObject prefab;
+
+        // Bounds of the prefab
+        public readonly Bounds bounds;
+
+        public HousePrefab(GameObject prefab, Bounds bounds)
+        {
+            this.prefab = prefab;
+            this.bounds = bounds;
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -142,13 +162,71 @@ public class ProceduralMapManager : MonoBehaviour
         {
             foreach (GameObject prefab in housePrefabs)
             {
-                if (prefab != null)
-                    validHousePrefabs.Add(prefab);
+                if (prefab == null) continue;
+
+                if (!TryMeasurePrefab(prefab, out Bounds bounds))
+                {
+                    Debug.LogWarning(
+                        $"'{prefab.name}' has no meshes to measure; it is skipped so it cannot " +
+                        $"be dropped through the ground or into the road.", prefab);
+
+                    continue;
+                }
+
+                WarnIfHouseOutgrowsCell(prefab, bounds);
+
+                validHousePrefabs.Add(new HousePrefab(prefab, bounds));
             }
         }
 
         if (validHousePrefabs.Count == 0)
             Debug.LogError("No house prefabs assigned; no houses will be spawned.", this);
+    }
+
+    bool TryMeasurePrefab(GameObject prefab, out Bounds bounds)
+    {
+        bounds = new Bounds();
+
+        Transform root = prefab.transform;
+
+        bool measured = false;
+
+        foreach (MeshFilter filter in prefab.GetComponentsInChildren<MeshFilter>(true))
+        {
+            if (filter.sharedMesh == null) continue;
+
+            Bounds mesh = filter.sharedMesh.bounds;
+
+            for (int corner = 0; corner < 8; corner++)
+            {
+                Vector3 local = mesh.center + Vector3.Scale(
+                    mesh.extents,
+                    new Vector3(
+                        (corner & 1) == 0 ? -1f : 1f,
+                        (corner & 2) == 0 ? -1f : 1f,
+                        (corner & 4) == 0 ? -1f : 1f
+                    )
+                );
+
+                Vector3 point = filter.transform.TransformPoint(local) - root.localPosition;
+
+                if (measured) bounds.Encapsulate(point);
+                else { bounds = new Bounds(point, Vector3.zero); measured = true; }
+            }
+        }
+
+        return measured;
+    }
+
+    void WarnIfHouseOutgrowsCell(GameObject prefab, Bounds bounds)
+    {
+        float widest = Mathf.Max(bounds.size.x, bounds.size.z);
+
+        if (widest <= cellSize) return;
+
+        Debug.LogWarning(
+            $"'{prefab.name}' is {widest:0.0} units across but a grid cell is only {cellSize:0.0}, " +
+            $"so it will overlap its neighbours. Scale the prefab down or raise Cell Size.", prefab);
     }
 
     void GenerateGrid()
@@ -633,7 +711,7 @@ public class ProceduralMapManager : MonoBehaviour
                 float t = Mathf.Clamp01(dist / maxDist);
                 float spawnChance = Mathf.Lerp(centreDensity, edgeDensity, t);
 
-                Vector3 roadPos = new Vector3(x * cellSize, houseSpawnY, z * cellSize);
+                Vector3 roadPos = new Vector3(x * cellSize, groundY, z * cellSize);
 
                 TryPlaceHouse(x, z, Vector3.left, roadPos, spawnChance);
                 TryPlaceHouse(x, z, Vector3.right, roadPos, spawnChance);
@@ -654,14 +732,17 @@ public class ProceduralMapManager : MonoBehaviour
         if (grid[nx, nz] != 0) return;
         if (occupancyGrid[nx, nz] == 1) return;
 
-        Vector3 housePos = roadPos + dir * cellSize;
-
-        GameObject prefab = validHousePrefabs[
+        HousePrefab choice = validHousePrefabs[
             UnityEngine.Random.Range(0, validHousePrefabs.Count)
         ];
+
         Quaternion rot = Quaternion.LookRotation(-dir);
 
-        GameObject house = Instantiate(prefab, housePos, rot, housesParent);
+        Vector3 housePos = roadPos
+            + dir * (houseSetback + choice.bounds.max.z)
+            + Vector3.up * -choice.bounds.min.y;
+
+        GameObject house = Instantiate(choice.prefab, housePos, rot, housesParent);
 
         spawnedHouses.Add(house.transform);
 

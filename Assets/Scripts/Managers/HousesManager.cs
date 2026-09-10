@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,12 +18,17 @@ public class HousesManager : MonoBehaviour
     [Tooltip("Child object on a house that marks the street-facing spot where a zone sits.")]
     [SerializeField] private string frontMarkerName = "Front";
 
-    [Tooltip("How far above the front marker the zone is placed.")]
-    [SerializeField] private float zoneHeightOffset = 0.2f;
+    [Tooltip("How far out from the front marker the delivery zone sits")]
+    [SerializeField] private float zoneForwardOffset = 0.8f;
 
-    [Tooltip("Rest the zone on the base of the house rather than at the marker's own height. " +
-             "House pivots are often at the centre of the mesh, which leaves a marker floating mid-wall.")]
-    [SerializeField] private bool alignToHouseBase = true;
+    [Tooltip("How far above the front marker the zone is placed.")]
+    [SerializeField] private float zoneHeightOffset = 0.05f;
+
+    [Tooltip("What the zone is allowed t ocome to rest on: the pavement, the road, the ground.")]
+    [SerializeField] private LayerMask zoneGroundLayers = -0;
+
+    [Tooltip("How far above the zone the search for that surface starts.")]
+    [SerializeField] private float zoneGroundProbeHeight = 5f;
 
     [Header("Extra Houses")]
     [Tooltip("Optional roots whose active children join the procedural houses as zone candidates.")]
@@ -43,6 +49,20 @@ public class HousesManager : MonoBehaviour
     }
 
     void GenerateZones(IReadOnlyList<Transform> houses)
+    {
+        StartCoroutine(GenerateZonesOncePhysicsHasCaughtUp(houses));
+    }
+
+    IEnumerator GenerateZonesOncePhysicsHasCaughtUp(IReadOnlyList<Transform> houses)
+    {
+        yield return new WaitForFixedUpdate();
+
+        Physics.SyncTransforms();
+
+        PlaceZones(houses);
+    }
+
+    void PlaceZones(IReadOnlyList<Transform> houses)
     {
         ValidateZonePrefab(deliveryZoneBoyPrefab, nameof(deliveryZoneBoyPrefab));
         ValidateZonePrefab(deliveryZoneWitchPrefab, nameof(deliveryZoneWitchPrefab));
@@ -217,10 +237,9 @@ public class HousesManager : MonoBehaviour
             return false;
         }
 
-        Vector3 position = front.position + front.up * zoneHeightOffset;
+        Vector3 position = front.position + front.forward * zoneForwardOffset;
 
-        if (alignToHouseBase && TryGetHouseBaseY(house, out float baseY))
-            position.y = baseY + zoneHeightOffset;
+        position.y = SurfaceHeightUnder(position, house) + zoneHeightOffset;
 
         GameObject zone = Instantiate(prefab, position, front.rotation);
 
@@ -237,6 +256,29 @@ public class HousesManager : MonoBehaviour
         delivery.Configure(owner);
 
         return true;
+    }
+
+    float SurfaceHeightUnder(Vector3 position, Transform house)
+    {
+        float probe = zoneGroundProbeHeight > 0f ? zoneGroundProbeHeight : 5f;
+        int layers = zoneGroundLayers.value != 0 ? zoneGroundLayers.value : Physics.DefaultRaycastLayers;
+
+        Vector3 origin = position + Vector3.up * probe;
+
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, probe * 2f,
+                            layers, QueryTriggerInteraction.Ignore))
+            return hit.point.y;
+
+        Debug.LogWarning(
+            $"Nothing under the delivery zone at {position} to rest it on. Zone Forward Offset " +
+            $"is {zoneForwardOffset}: at 0 the zone sits on the Front marker, which is out past " +
+            $"the kerb where there is no ground, so set it to 0.8. Standing the zone on " +
+            $"'{house.name}' own base for now, which will sink it into the pavement.", house);
+
+        if (TryGetHouseBaseY(house, out float baseY))
+            return baseY;
+
+        return position.y;
     }
 
     bool TryGetHouseBaseY(Transform house, out float baseY)

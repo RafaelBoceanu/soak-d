@@ -4824,7 +4824,7 @@ MonoBehaviour:
   - item: 1
     startingAmount: 3
     maxAmount: 6
-  logChanges: 0
+  logChanges: 1
 --- !u!1 &543856485
 GameObject:
   m_ObjectHideFlags: 0
@@ -5092,8 +5092,12 @@ MonoBehaviour:
   boyZonesCount: 5
   witchZonesCount: 5
   frontMarkerName: Front
-  zoneHeightOffset: 0.2
-  alignToHouseBase: 1
+  zoneForwardOffset: 0.8
+  zoneHeightOffset: 0.05
+  zoneGroundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  zoneGroundProbeHeight: 5
   additionalHouseParents: []
 --- !u!1001 &584501202
 PrefabInstance:
@@ -6234,11 +6238,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 705083467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 122.399994, y: 323.7}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 34, y: -69}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 1}
 --- !u!114 &692713380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10998,11 +11002,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 705083467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 122.4, y: 293.9}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 34, y: -98.80002}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 1}
 --- !u!114 &1237698091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14268,7 +14272,7 @@ MonoBehaviour:
   - item: 1
     startingAmount: 3
     maxAmount: 6
-  logChanges: 0
+  logChanges: 1
 --- !u!1 &1557376950
 GameObject:
   m_ObjectHideFlags: 0
@@ -15147,7 +15151,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.13942133, y: 0.46454442}
   m_AnchorMax: {x: 0.379, y: 0.5355444}
-  m_AnchoredPosition: {x: -1.0000763, y: 0}
+  m_AnchoredPosition: {x: -1.0001221, y: 0}
   m_SizeDelta: {x: 2, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1607507635
@@ -15720,11 +15724,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 705083467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -79.3, y: 323.7}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 10, y: -69}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &1660986183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16030,7 +16034,8 @@ MonoBehaviour:
   width: 50
   height: 50
   cellSize: 8
-  houseSpawnY: 3
+  groundY: 0
+  houseSetback: 5
   primaryRoads: 4
   secondaryRoads: 5
   sideStreets: 8
@@ -16049,7 +16054,14 @@ MonoBehaviour:
   roadTJunctionPrefab: {fileID: 7366118959589919433, guid: b55234b544cf6914c9c77f204b9cb0a5, type: 3}
   roadCrossroadsPrefab: {fileID: 7366118959589919433, guid: 74eb8fc1161e44847b74433c4540d1a1, type: 3}
   housePrefabs:
-  - {fileID: 3788787756148280997, guid: 255153657f91cb64a9a09f15c891e833, type: 3}
+  - {fileID: 181254, guid: 4531f4941a67045459499f23ed5bc711, type: 3}
+  - {fileID: 126530, guid: d8c4bc004abb4fb428be3467211cea9c, type: 3}
+  - {fileID: 168476, guid: 8229f963b32dc724c801fafd4a38147d, type: 3}
+  - {fileID: 195156, guid: dba4b92b60933ec47bd74820fe64d5ce, type: 3}
+  - {fileID: 136194, guid: 49dbc362fdf0c7a49a3d5e436f8d6031, type: 3}
+  - {fileID: 101166, guid: 62b590143d8a1f841b1ff8d5536f0676, type: 3}
+  - {fileID: 186562, guid: 052d9e2fb5dbfda48a537e0e649e3325, type: 3}
+  - {fileID: 129934, guid: e8bf8a360364d0948a2f6427cf3cc569, type: 3}
   roadsParent: {fileID: 1706269643}
   housesParent: {fileID: 1896820609}
 --- !u!1 &1700100350
@@ -16116,11 +16128,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 705083467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -79.3, y: 293.9}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 10, y: -98.80002}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &1704336286
 MonoBehaviour:
   m_ObjectHideFlags: 0
