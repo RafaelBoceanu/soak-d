@@ -22,6 +22,10 @@ public class PlayersCameraController : MonoBehaviour
 
     [SerializeField] float smoothTime = 0.3f;
 
+    [Header("Collision")]
+    [Tooltip("Keeps the camera outside of buildings, props and the other player")]
+    [SerializeField] CameraCollisionProbe collisionProbe = new CameraCollisionProbe();
+
     float rotationX = 20f;
     float rotationY;
     Vector3 currentVelocity;
@@ -31,6 +35,10 @@ public class PlayersCameraController : MonoBehaviour
     Vector3 lookVelocity;
     [SerializeField] float lookSmoothTime = 0.05f;
     [SerializeField] float rotationSharpness = 20f;
+
+    Vector3 pivot;
+    Camera cam;
+    Transform ownerRoot;
 
     static readonly Dictionary<OwnerType, PlayersCameraController> rigs =
         new Dictionary<OwnerType, PlayersCameraController>();
@@ -49,6 +57,12 @@ public class PlayersCameraController : MonoBehaviour
     void Awake()
     {
         rigs[owner] = this;
+
+        cam = GetComponent<Camera>();
+        if (cam == null) 
+            cam = GetComponentInChildren<Camera>();
+
+        ownerRoot = ResolveOwnerRoot();
     }
 
     void OnDestroy()
@@ -61,8 +75,17 @@ public class PlayersCameraController : MonoBehaviour
     {
         Vector3 angles = transform.eulerAngles;
         rotationY = angles.y;
-        if (followTarget != null) 
-            lookPoint = followTarget.position;
+
+        if (followTarget != null)
+        {
+            pivot = FramedTarget(Quaternion.Euler(rotationX, rotationY, 0));
+            lookPoint = pivot;
+        }
+        else
+        {
+            pivot = transform.position;
+            lookPoint = transform.position;
+        }
     }
 
     private void LateUpdate()
@@ -72,24 +95,47 @@ public class PlayersCameraController : MonoBehaviour
         ApplyLook();
 
         Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0);
-        Vector3 offset = rotation * new Vector3(0, 0, -distanceToTarget);
+        Vector3 framedTarget = FramedTarget(rotation);
 
-        Vector3 targetPosition = followTarget.position
-                       + Vector3.up * framingOffset.y
-                       + rotation * Vector3.right * framingOffset.x;
-        desiredPosition = targetPosition + offset;
+        pivot = Vector3.SmoothDamp(pivot, framedTarget, ref currentVelocity, smoothTime);
 
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, smoothTime);
-        lookPoint = Vector3.SmoothDamp(lookPoint, targetPosition, ref lookVelocity, lookSmoothTime);
+        desiredPosition = pivot + rotation * new Vector3(0, 0, -distanceToTarget);
+
+        transform.position = collisionProbe.Resolve(
+            pivot,
+            desiredPosition,
+            cam,
+            Time.deltaTime,
+            followTarget,
+            ownerRoot
+        );
+
+        lookPoint = Vector3.SmoothDamp(lookPoint, framedTarget, ref lookVelocity, lookSmoothTime);
 
         Vector3 toTarget = lookPoint - transform.position;
-        if (toTarget.sqrMagnitude < 0.0001f) return;
+
+        Quaternion targetRotation = toTarget.sqrMagnitude > 0.04f
+            ? Quaternion.LookRotation(toTarget)
+            : rotation;
 
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
-            Quaternion.LookRotation(toTarget),
+            targetRotation,
             1f - Mathf.Exp(-rotationSharpness * Time.deltaTime)
         );
+    }
+
+    private Vector3 FramedTarget(Quaternion rotation)
+    {
+        return followTarget.position
+            + Vector3.up * framingOffset.y
+            + rotation * Vector3.right * framingOffset.x;
+    }
+
+    private Transform ResolveOwnerRoot()
+    {
+        PlayerInputHandler handler = GetComponentInParent<PlayerInputHandler>();
+        return handler != null ? handler.transform : null;
     }
 
     private void ApplyLook()
@@ -113,6 +159,8 @@ public class PlayersCameraController : MonoBehaviour
     public void SetFollowTarget(Transform newTarget)
     {
         followTarget = newTarget;
+        ownerRoot = ResolveOwnerRoot();
+
         if (newTarget != null)
             lookPoint = newTarget.position;
     }
