@@ -760,4 +760,27 @@ public class ProceduralMapManager : MonoBehaviour
     {
         return spawnedHouses;
     }
+
+    public List<Vector2Int> GetRoadCells()
+    {
+        List<Vector2Int> cells = new List<Vector2Int>();
+
+        if (grid == null) return cells;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (grid[x, z] == 1)
+                    cells.Add(new Vector2Int(x, z));
+            }
+        }
+
+        return cells;
+    }    
+
+    public Vector3 RoadCellToWorld(Vector2Int cell)
+    {
+        return new Vector3(cell.x * cellSize, 0f, cell.y * cellSize);
+    }
 }
