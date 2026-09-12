@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7782343285654560044}
   - component: {fileID: 2175065280014804109}
   - component: {fileID: 5584904084145281869}
-  - component: {fileID: 5567321865583573396}
   m_Layer: 8
   m_Name: Decal01
   m_TagString: Untagged
@@ -91,27 +90,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5567321865583573396
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1137307618302113686}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 0.9999999, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4533730070403863832
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +101,6 @@ GameObject:
   - component: {fileID: 189004985903370182}
   - component: {fileID: 7159092655614359728}
   - component: {fileID: 413797919266412045}
-  - component: {fileID: 5793302621240415566}
   m_Layer: 8
   m_Name: Decal05
   m_TagString: Untagged
@@ -203,27 +180,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5793302621240415566
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4533730070403863832}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 0.9999999, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6814860332691679736
 GameObject:
   m_ObjectHideFlags: 0
@@ -347,7 +303,6 @@ GameObject:
   - component: {fileID: 7528067103458958431}
   - component: {fileID: 7978010521452234076}
   - component: {fileID: 7614906849184249697}
-  - component: {fileID: 6703332280497339496}
   m_Layer: 8
   m_Name: Decal04
   m_TagString: Untagged
@@ -427,27 +382,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6703332280497339496
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7126046776660986853}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 0.9999999, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7366118959589919433
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,7 +393,6 @@ GameObject:
   - component: {fileID: 7927014166849820803}
   - component: {fileID: 1383134350133217072}
   - component: {fileID: 9034492574971866766}
-  - component: {fileID: 5565629977161250089}
   m_Layer: 8
   m_Name: RoadStraightPrefab
   m_TagString: Untagged
@@ -546,27 +479,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5565629977161250089
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7366118959589919433}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7774564700661544104
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,7 +602,6 @@ GameObject:
   - component: {fileID: 4616987476003972610}
   - component: {fileID: 5822038410646517403}
   - component: {fileID: 5884696368540212458}
-  - component: {fileID: 138177267368275702}
   m_Layer: 8
   m_Name: Decal03
   m_TagString: Untagged
@@ -770,27 +681,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &138177267368275702
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8159616978126206377}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 0.9999999, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8316660665280481865
 GameObject:
   m_ObjectHideFlags: 0
@@ -802,7 +692,6 @@ GameObject:
   - component: {fileID: 4256715181813327636}
   - component: {fileID: 505776629589909505}
   - component: {fileID: 1893606350011233002}
-  - component: {fileID: 7816639181909628109}
   m_Layer: 8
   m_Name: Decal02
   m_TagString: Untagged
@@ -882,24 +771,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7816639181909628109
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8316660665280481865}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 0.9999999, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}

@@ -26,6 +26,8 @@ public class ProceduralMapManager : MonoBehaviour
     private const RoadLinks crossroadsLinks = RoadLinks.North | RoadLinks.East | RoadLinks.South | RoadLinks.West;
 
     private const float roadThickness = 0.3f;
+    [Tooltip("How far the road surface sits above the ground plane.")]
+    private const float roadSurfaceLift = 0.03f;
 
     private static readonly Vector2Int[] neighbourSteps =
     {
@@ -561,7 +563,7 @@ public class ProceduralMapManager : MonoBehaviour
             {
                 if (grid[x, z] != 1) continue;
 
-                Vector3 pos = new Vector3(x * cellSize, 0f, z * cellSize);
+                Vector3 pos = new Vector3(x * cellSize, groundY - roadThickness * 0.5f + roadSurfaceLift, z * cellSize);
 
                 GameObject prefab = PickRoadPrefab(GetRoadLinks(x, z), out float yaw);
 

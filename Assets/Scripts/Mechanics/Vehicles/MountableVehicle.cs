@@ -43,6 +43,8 @@ public class MountableVehicle : MonoBehaviour
     private BicycleController bike;
     private FlyingBroomController broom;
 
+    private Transform RiderAnchor => bike != null ? bike.RiderAnchor : transform;
+
     private void Awake()
     {
         bike = GetComponent<BicycleController>();
@@ -118,11 +120,10 @@ public class MountableVehicle : MonoBehaviour
         }
 
         // Snap to mount point
-        playerInput.transform.position = mountPoint.position;
-        playerInput.transform.rotation = mountPoint.rotation;
+        playerInput.transform.SetPositionAndRotation(mountPoint.position, mountPoint.rotation);
 
         // Parent player
-        playerInput.transform.SetParent(transform);
+        playerInput.transform.SetParent(RiderAnchor, true);
 
         // Assing control
         if (bike != null)

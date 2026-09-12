@@ -9808,13 +9808,13 @@ Transform:
   m_GameObject: {fileID: 1085611741}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.474, z: -0.361}
+  m_LocalPosition: {x: 0, y: 0.73399997, z: -0.36100006}
   m_LocalScale: {x: 1.3333334, y: 1.3333334, z: 1.3333334}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1357690995}
   - {fileID: 1061124034}
-  m_Father: {fileID: 8420037160436548875}
+  m_Father: {fileID: 1851682358588231543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1093600983
 GameObject:
@@ -16034,7 +16034,7 @@ MonoBehaviour:
   width: 50
   height: 50
   cellSize: 8
-  groundY: 0
+  groundY: -0.15
   houseSetback: 5
   primaryRoads: 4
   secondaryRoads: 5
@@ -16625,6 +16625,59 @@ Transform:
   m_Children:
   - {fileID: 2107075045}
   m_Father: {fileID: 411220743}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1741946377
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1741946379}
+  - component: {fileID: 1741946378}
+  m_Layer: 8
+  m_Name: DriveSurface
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1741946378
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741946377}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1000, y: 10, z: 1000}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1741946379
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741946377}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -5.12, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1744242105
 GameObject:
@@ -18379,6 +18432,7 @@ GameObject:
   - component: {fileID: 1886691533}
   - component: {fileID: 1886691532}
   - component: {fileID: 1886691531}
+  - component: {fileID: 1886691536}
   m_Layer: 7
   m_Name: SphereRB
   m_TagString: Untagged
@@ -18412,7 +18466,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 2
+  m_CollisionDetection: 0
 --- !u!135 &1886691532
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -18432,7 +18486,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1886691533
 MeshRenderer:
@@ -18506,6 +18560,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8420037160436548875}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1886691536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886691530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81c165f9a10ee7b4cae4a0d8e09e515b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheelContactProbe
+  reportAbove: 0.25
+  maxReports: 40
 --- !u!1 &1887045644
 GameObject:
   m_ObjectHideFlags: 0
@@ -19734,12 +19802,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1998709009}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.253, z: -0.68}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.007, z: -0.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8420037160436548875}
+  m_Father: {fileID: 1851682358588231543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2010226424
 GameObject:
@@ -24524,6 +24592,8 @@ Transform:
   - {fileID: 106790290733488906}
   - {fileID: 4987913556305350845}
   - {fileID: 6369117701444356908}
+  - {fileID: 1085611743}
+  - {fileID: 1998709011}
   m_Father: {fileID: 8420037160436548875}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1870485648852763578
@@ -32141,7 +32211,6 @@ GameObject:
   - component: {fileID: 106790290733488906}
   - component: {fileID: 7646775284448533028}
   - component: {fileID: 7646775284448533029}
-  - component: {fileID: 7646775284448533030}
   m_Layer: 6
   m_Name: CranksTurning
   m_TagString: Untagged
@@ -32365,28 +32434,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!95 &7646775284448533030
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7493341921409786022}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9c48624ba3eec274fba936ad00286c94, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &7651340730939793245
 Transform:
   m_ObjectHideFlags: 0
@@ -33451,8 +33498,6 @@ Transform:
   m_Children:
   - {fileID: 1851682358588231543}
   - {fileID: 1886691535}
-  - {fileID: 1998709011}
-  - {fileID: 1085611743}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &8420085441908618318
@@ -34589,47 +34634,38 @@ MonoBehaviour:
   handle: {fileID: 3707496055783637605}
   frame: {fileID: 9152231287875530802}
   skidTrail: {fileID: 1998709010}
-  turningCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   maxSpeed: 20
-  acceleration: 1
-  steerStrength: 75
-  tiltAngle: 30
+  acceleration: 3
   gravity: 25
-  bikeXTiltIncrement: 0.09
-  zTiltAngle: 60
-  handleRotVal: 30
-  handleRotSpeed: 0.15
   skidWidth: 0.062
-  minSkidVelocity: 5
-  brakingStrength: 1
+  minSkidVelocity: 0.35
+  groundProbeSkin: 0.05
+  maxGroundAngle: 50
+  airControl: 0.35
+  reverseFraction: 0.25
+  gripStrength: 20
+  maxStepHeight: 0.2
+  minStepHeight: 0.03
+  maxGroundedRise: 0.15
+  stepClimbSpeed: 2.5
+  stepLookAhead: 0.15
+  showDebug: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  cranksAnimator: {fileID: 7646775284448533030}
-  cranksSpeedMultiplier: 1.5
+  freezeWhenUnridden: 1
+  tiltSharpness: 10
+  groundNormalSharpness: 8
+  zTiltAngle: 40
+  leanSharpness: 6
+  minTurnRadius: 2.5
+  maxCorneringAccel: 8
+  handleRotVal: 30
+  handleTurnSharpness: 12
+  brakingStrength: 5
+  brakeDeceleration: 25
+  cranksPivot: {fileID: 106790290733488906}
+  crankDegreesPerUnit: 51
 --- !u!65 &9192457632094920627
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -34722,3 +34758,4 @@ SceneRoots:
   - {fileID: 1706269643}
   - {fileID: 346968293}
   - {fileID: 2143048316}
+  - {fileID: 1741946379}
