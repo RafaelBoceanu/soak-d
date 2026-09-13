@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         UpdateGameState(GameState.Delivery);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
     void Update()
     {

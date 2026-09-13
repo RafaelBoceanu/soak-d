@@ -160,4 +160,9 @@ public class PlayerMovement : MonoBehaviour
     {
         isAiming = aiming;
     }
+
+    public void ResetFall()
+    {
+        verticalVelocity = groundedOffset;
+    }
 }

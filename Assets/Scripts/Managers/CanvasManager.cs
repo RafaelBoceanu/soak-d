@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Android;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CanvasManager : MonoBehaviour
@@ -48,12 +49,16 @@ public class CanvasManager : MonoBehaviour
             // Pause the game
             pausePanel.SetActive(true);
             Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
         else
         {
             // Resume the game
             pausePanel.SetActive(false);
             Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 

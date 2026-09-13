@@ -11,7 +11,7 @@ public class BicycleController : MonoBehaviour
     Vector3 groundNormal = Vector3.up;
 
     float visualSteer, leanAngle, crankAngle, wheelAngle;
-    float yawRate, lateralSlip;
+    float yawRate, corneringLoad;
     bool stepping;
     string stepReason = "idle";
     float groundAhead;
@@ -23,8 +23,10 @@ public class BicycleController : MonoBehaviour
     public GameObject handle, frame;
     public TrailRenderer skidTrail;
 
-    public float maxSpeed = 20f, acceleration = 3f, gravity = 25f, 
-        skidWidth = 0.062f, minSkidVelocity = 0.4f;
+    public float maxSpeed = 20f, acceleration = 3f, gravity = 25f, skidWidth = 0.062f;
+
+    [Tooltip("How far past the tyres' grip at the steering has to reach before the bike marks the road")]
+    public float minSkidLoad = 2f;
 
     [Header("Ground Detection")]
     [Tooltip("Extra clearance under the wheel that still counts as grounded. A large value makes the bike hover over kerbs")]
@@ -268,6 +270,8 @@ public class BicycleController : MonoBehaviour
 
         float geometricRate = speed / Mathf.Max(minTurnRadius, 0.01f);
         float gripRate = speed > 0.01f ? maxCorneringAccel / speed : 0f;
+        float demand = Mathf.Abs(steerInput) * geometricRate;
+        corneringLoad = gripRate > 0.01f ? demand / gripRate : 0f;
 
         float turnAmount = steerInput
             * Mathf.Sign(velocity.z)
@@ -298,7 +302,6 @@ public class BicycleController : MonoBehaviour
         Vector3 current = sphereRB.linearVelocity;
 
         Vector3 lateral = Vector3.Project(new Vector3(current.x, 0f, current.z), transform.right);
-        lateralSlip = lateral.magnitude;
 
         float scrubbed = 1f - Mathf.Exp(-gripStrength * Time.fixedDeltaTime);
 
@@ -310,7 +313,7 @@ public class BicycleController : MonoBehaviour
         if (Vector3.Angle(groundNormal, Vector3.up) > 5f) return;
 
         Vector3 current = sphereRB.linearVelocity;
-        if (current.y <= maxGroundAngle) return;
+        if (current.y <= maxGroundedRise) return;
 
         sphereRB.linearVelocity = new Vector3(current.x, maxGroundedRise, current.z);
     }
@@ -406,7 +409,10 @@ public class BicycleController : MonoBehaviour
     {
         if (skidTrail == null) return;
 
-        skidTrail.emitting = isGrounded && lateralSlip > minSkidVelocity;
+        bool sliding = corneringLoad > minSkidLoad;
+        bool brakeLock = isBraking && Mathf.Abs(velocity.z) > 1.5f;
+
+        skidTrail.emitting = isGrounded && (sliding || brakeLock);
     }
 
     void BikeTilt()

@@ -39,11 +39,15 @@ public class MountableVehicle : MonoBehaviour
     private bool isOccupied = false;
     private PlayerInputHandler currentPlayerInput;
     private PlayerMovement currentPlayerMovement;
+    private CharacterController currentController;
 
     private BicycleController bike;
     private FlyingBroomController broom;
 
     private Transform RiderAnchor => bike != null ? bike.RiderAnchor : transform;
+    private float RiderRise => currentController != null 
+        ? currentController.height * 0.5f - currentController.center.y + currentController.skinWidth 
+        : 0f;
 
     private void Awake()
     {
@@ -92,9 +96,9 @@ public class MountableVehicle : MonoBehaviour
         movement.enabled = false;
 
         // Disable character controller
-        CharacterController controller = playerInput.GetComponent<CharacterController>();
-        if (controller != null) 
-            controller.enabled = false;
+        currentController = playerInput.GetComponent<CharacterController>();
+        if (currentController != null)
+            currentController.enabled = false;
 
         // Disable player rigidbody
         Rigidbody rb = playerInput.GetComponent<Rigidbody>();
@@ -191,6 +195,7 @@ public class MountableVehicle : MonoBehaviour
 
         // Re-enable player movement
         currentPlayerMovement.enabled = true;
+        currentPlayerMovement.ResetFall();
 
         // Restore camera to follow player
         PlayersCameraController camController = currentPlayerInput.GetComponentInChildren<PlayersCameraController>();
@@ -203,6 +208,7 @@ public class MountableVehicle : MonoBehaviour
         // Clear control
         currentPlayerInput = null;
         currentPlayerMovement = null;
+        currentController = null;
         isOccupied = false;
 
         return true;
@@ -294,19 +300,23 @@ public class MountableVehicle : MonoBehaviour
             if (hit.distance >= closest) continue;
 
             closest = hit.distance;
-            grounded = hit.point + Vector3.up * GroundSnapOffset;
+            grounded = hit.point + Vector3.up * (GroundSnapOffset + RiderRise);
             found = true;
         }
 
         return found;
     }
 
-    private bool IsSpotClear(Vector3 position)
+    private bool IsSpotClear(Vector3 pivot)
     {
-        if (dismountClearanceRadius <= 0f) return true;
+        if (currentController == null || dismountClearanceRadius <= 0f) return true;
 
-        Collider[] overlaps = Physics.OverlapSphere(
-            position + Vector3.up * dismountClearanceRadius,
+        Vector3 centre = pivot + currentController.center;
+        float half = Mathf.Max(0f, currentController.height * 0.5f - dismountClearanceRadius);
+
+        Collider[] overlaps = Physics.OverlapCapsule(
+            centre - Vector3.up * half,
+            centre + Vector3.up * half,
             dismountClearanceRadius,
             Physics.DefaultRaycastLayers,
             QueryTriggerInteraction.Ignore

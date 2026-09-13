@@ -15,9 +15,11 @@ public class PlayersCameraController : MonoBehaviour
 
     [Header("Look Sensitivity")]
     [Tooltip("Degrees per pixel of mouse movement.")]
-    [SerializeField] float mouseSensitivity = 0.3f;
+    [SerializeField] float mouseSensitivity = 0.05f;
     [Tooltip("Degrees per second at full stick deflection.")]
-    [SerializeField] float gamepadSensitivity = 220f;
+    [SerializeField] float gamepadSensitivity = 160f;
+    [Tooltip("Vertical look speed relative to horizontal")]
+    [SerializeField] float verticalSensitivityScale = 0.75f;
     [SerializeField] bool invertVertical = false;
 
     [SerializeField] float smoothTime = 0.3f;
@@ -140,6 +142,8 @@ public class PlayersCameraController : MonoBehaviour
 
     private void ApplyLook()
     {
+        if (Time.timeScale == 0f) return;
+
         PlayerInputContext input = TwoPlayerInputManager.GetPlayer(owner);
 
         if (input == null)
@@ -152,7 +156,7 @@ public class PlayersCameraController : MonoBehaviour
             : look * gamepadSensitivity * Time.deltaTime;
 
         rotationY += degrees.x;
-        rotationX += invertVertical ? degrees.y : -degrees.y;
+        rotationX += (invertVertical ? degrees.y : -degrees.y) * verticalSensitivityScale;
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
     }
 

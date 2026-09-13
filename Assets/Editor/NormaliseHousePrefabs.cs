@@ -22,7 +22,7 @@ public static class NormaliseHousePrefabs
     const string folder = "Assets/Prefabs/Map/Houses/";
 
     // Brings the pack's units into the game's roughly one-unit-per-metre scale.
-    const float fitScale = 1f / 3f;
+    const float fitScale = 0.45f;
 
     // World units the Front marker sits ahead of the front wall.
     const float doorstep = 0.6f;
