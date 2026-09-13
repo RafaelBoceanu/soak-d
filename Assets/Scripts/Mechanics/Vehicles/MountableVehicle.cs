@@ -82,6 +82,10 @@ public class MountableVehicle : MonoBehaviour
     {
         if (isOccupied) return;
 
+        PeeSystem peeSystem = playerInput.GetComponent<PeeSystem>();
+        if (peeSystem != null)
+            peeSystem.CancelPeeing();
+
         isOccupied = true;
         currentPlayerInput = playerInput;
         currentPlayerMovement = movement;

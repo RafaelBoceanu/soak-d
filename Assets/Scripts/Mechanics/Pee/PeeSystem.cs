@@ -13,6 +13,8 @@ public class PeeSystem : MonoBehaviour
     private bool isPeeing = false;
     private bool zipperClosed = true;
 
+    private PlayerInputHandler inputHandler;
+
     private ParticleSystem peeParticleSystem;
 
     [SerializeField] private GameObject peePrefab;
@@ -31,7 +33,7 @@ public class PeeSystem : MonoBehaviour
 
     void Awake()
     {
-        PlayerInputHandler inputHandler = GetComponent<PlayerInputHandler>();
+        inputHandler = GetComponent<PlayerInputHandler>();
 
         if (inputHandler != null)
             owner = inputHandler.Owner;
@@ -71,6 +73,12 @@ public class PeeSystem : MonoBehaviour
 
         if (input == null)
         {
+            return;
+        }
+
+        if (inputHandler != null && inputHandler.IsRiding)
+        {
+            CancelPeeing();
             return;
         }
 
@@ -148,6 +156,24 @@ public class PeeSystem : MonoBehaviour
                 peePuddle.EndPuddle();
             }
         }
+    }
+
+    public void CancelPeeing()
+    {
+        StopPeeing();
+
+        if (zipperClosed) return;
+
+        zipperClosed = true;
+
+        if (zipperCloseSound != null)
+            zipperCloseSound.Play();
+
+        Animator animator = GetComponentInChildren<Animator>();
+        if (animator != null)
+            animator.SetBool("isPeeing", false);
+
+        UpdateCensor();
     }
 
     void UpdateVisuals(float normalized)

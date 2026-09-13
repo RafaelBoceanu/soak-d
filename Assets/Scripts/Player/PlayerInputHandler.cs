@@ -26,6 +26,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public PlayersCameraController CameraController =>
         cameraController != null ? cameraController : PlayersCameraController.ForOwner(owner);
+    public bool IsRiding => currentVehicle != null;
 
     void Awake()
     {
