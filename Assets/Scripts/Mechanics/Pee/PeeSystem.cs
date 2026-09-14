@@ -14,6 +14,7 @@ public class PeeSystem : MonoBehaviour
     private bool zipperClosed = true;
 
     private PlayerInputHandler inputHandler;
+    private PlayerMovement playerMovement;
 
     private ParticleSystem peeParticleSystem;
 
@@ -25,6 +26,7 @@ public class PeeSystem : MonoBehaviour
     [SerializeField] private PlayerNeeds playerNeeds;
     [SerializeField] private ZipperCensor zipperCensor;
     [SerializeField] private PeePuddle peePuddle;
+    [SerializeField] private Animator animator;
 
     private ParticleSystem.EmissionModule emission;
     private ParticleSystem.MainModule main;
@@ -34,10 +36,24 @@ public class PeeSystem : MonoBehaviour
     void Awake()
     {
         inputHandler = GetComponent<PlayerInputHandler>();
+        playerMovement = GetComponent<PlayerMovement>();
+        
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+
+        if (animator == null)
+            Debug.LogWarning($"[PeeSystem] {name} found no Animator - peeing animation will not play.", this);
 
         if (inputHandler != null)
             owner = inputHandler.Owner;
     }
+
+    void OnDisable()
+    {
+        CloseZipper(false);
+    }
+
+    private bool CanPee => playerMovement == null || playerMovement.CanPee;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -84,24 +100,22 @@ public class PeeSystem : MonoBehaviour
 
         if (input.ZipPressed)
         {
-            zipperClosed = !zipperClosed;
-
-            if (!zipperClosed)
+            if (zipperClosed)
             {
-                zipperOpenSound.Play();
-                this.gameObject.GetComponent<PlayerMovement>().enabled = false;
-                this.gameObject.GetComponentInChildren<Animator>().SetBool("isPeeing", true);
+                if (CanPee)
+                {
+                    OpenZipper();
+                }
             }
             else
             {
-                zipperCloseSound.Play();
-                this.gameObject.GetComponent<PlayerMovement>().enabled = true;
-                this.gameObject.GetComponentInChildren<Animator>().SetBool("isPeeing", false);
-                StopPeeing();
+                CloseZipper(true);
             }
-            UpdateCensor();
+        }
 
-            Debug.Log($"{owner} zipper closed: {zipperClosed}");
+        if (!zipperClosed && !CanPee)
+        {
+            CloseZipper(true);
         }
 
         float pee = playerNeeds.pee;
@@ -160,20 +174,47 @@ public class PeeSystem : MonoBehaviour
 
     public void CancelPeeing()
     {
+        CloseZipper(true);
+    }
+
+    private void OpenZipper()
+    {
+        zipperClosed = false;
+
+        if (zipperOpenSound != null)
+            zipperOpenSound.Play();
+
+        if (playerMovement != null)
+            playerMovement.SetMovementLocked(true);
+
+        if (animator != null)
+            animator.SetBool("isPeeing", true);
+
+        UpdateCensor();
+
+        Debug.Log($"{owner} zipper closed: {zipperClosed}");
+    }
+
+    private void CloseZipper(bool playSound)
+    {
         StopPeeing();
+
+        if (playerMovement != null)
+            playerMovement.SetMovementLocked(false);
 
         if (zipperClosed) return;
 
         zipperClosed = true;
 
-        if (zipperCloseSound != null)
+        if (playSound && zipperCloseSound != null)
             zipperCloseSound.Play();
 
-        Animator animator = GetComponentInChildren<Animator>();
         if (animator != null)
             animator.SetBool("isPeeing", false);
 
         UpdateCensor();
+
+        Debug.Log($"{owner} zipper closed: {zipperClosed}");
     }
 
     void UpdateVisuals(float normalized)

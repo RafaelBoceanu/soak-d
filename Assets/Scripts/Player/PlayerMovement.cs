@@ -37,6 +37,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 inputVector = Vector3.zero;
     private bool isSprinting = false;
     private bool isAiming = false;
+    private bool isMoving = false;
+    private bool movementLocked = false;
+
+    public bool CanPee => isActiveAndEnabled && !isMoving;
 
     private void Awake()
     {
@@ -50,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnDisable()
     {
         isAiming = false;
+        isMoving = false;
     }
 
     private void Update()
@@ -79,7 +84,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * inputVector.z + camRight * inputVector.x;
         move = Vector3.ClampMagnitude(move, 1f);
 
-        bool isMoving = move.magnitude >= MoveDeadzone;
+        if (movementLocked)
+        {
+            move = Vector3.zero;
+        }
+
+        isMoving = move.magnitude >= MoveDeadzone;
 
         float targetSpeed = isSprinting ? sprintSpeed : speed;
         float targetAnimSpeed = move.magnitude * targetSpeed;
@@ -95,8 +105,7 @@ public class PlayerMovement : MonoBehaviour
         if (animator != null)
         {
             animator.SetFloat("Speed", currentAnimSpeed);
-            animator.SetBool("isMoving", move.magnitude >= 0.1f);
-            this.gameObject.GetComponent<PeeSystem>().enabled = move.magnitude < 0.1f; // Disable pee system when moving
+            animator.SetBool("isMoving", isMoving);
         }
 
         // Gravity logic
@@ -159,6 +168,16 @@ public class PlayerMovement : MonoBehaviour
     public void SetAiming(bool aiming)
     {
         isAiming = aiming;
+    }
+
+    public void SetMovementLocked(bool locked)
+    {
+        movementLocked = locked;
+
+        if (locked)
+        {
+            isMoving = false;
+        }
     }
 
     public void ResetFall()
