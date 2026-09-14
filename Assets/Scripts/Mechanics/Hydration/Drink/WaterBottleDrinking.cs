@@ -83,7 +83,7 @@ public class WaterBottleDrinking : MonoBehaviour
             return false;
 
         playerNeeds.Drink(hydrationPerBottle);
-        nextDrinkTime = Time.time * drinkCooldown;
+        nextDrinkTime = Time.time + drinkCooldown;
 
         if (drinkSound != null)
             drinkSound.Play();
