@@ -53,10 +53,20 @@ public class DeliveryScoreManager : MonoBehaviour
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    public static void ResetAll()
+    public static void ResetScores()
     {
         zoneCounts = new int[ownerCount];
         scores = new int[ownerCount];
         completed = new bool[ownerCount];
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    public static void ResetAll()
+    {
+        ResetScores();
+
+        OnScoreChanged = null;
+        onOwnerCompleted = null;
+        onZoneCountChanged = null;
     }
 }

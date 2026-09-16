@@ -44,6 +44,9 @@ public class GameManager : MonoBehaviour
                 UpdateGameState(GameState.Handcar);
         }*/
 
+        if (gameState == GameState.GameOver)
+            return;
+
         if (TwoPlayerInputManager.AnyPausePressed())
         {
             if (gameState != GameState.Pause)
@@ -82,6 +85,9 @@ public class GameManager : MonoBehaviour
             case GameState.Delivery:
                 HandleDelivery();
                 break;
+            case GameState.GameOver:
+                HandleGameOver();
+                break;
         }
 
         OnGameStateChanged?.Invoke(newState);
@@ -118,10 +124,28 @@ public class GameManager : MonoBehaviour
         if (handcarPrefab != null)
             handcarPrefab.SetActive(false);
     }
+
+    private void HandleGameOver()
+    {
+        if (handcarPrefab != null)
+        {
+            HandcarMovement movement = handcarPrefab.GetComponent<HandcarMovement>();
+
+            if (movement != null)
+                movement.enabled = false;
+        }
+
+        if (boyCamera != null)
+            boyCamera.SetActive(false);
+
+        if (witchCamera != null)
+            witchCamera.SetActive(false);
+    }
 }
 public enum GameState
 {
     Handcar,
     Delivery,
-    Pause
+    Pause,
+    GameOver
 }

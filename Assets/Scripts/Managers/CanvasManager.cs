@@ -13,6 +13,22 @@ public class CanvasManager : MonoBehaviour
     [SerializeField] private Slider witchHydrationSlider;
     [SerializeField] private Slider witchPeeSlider;
 
+    [Header("Match")]
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private TMP_Text matchTimerText;
+    [SerializeField] private TMP_Text boyScoreText;
+    [SerializeField] private TMP_Text witchScoreText;
+    [SerializeField] private TMP_Text resultHeadlineText;
+    [SerializeField] private TMP_Text resultDetailText;
+
+    [Tooltip("{0} is deliveries made, {1} the zones that player owns.")]
+    [SerializeField] private string scoreFormat = "{0}/{1}";
+
+    [Tooltip("Seconds left at which the clock turns urgent.")]
+    [SerializeField] private float lowTimeSeconds = 30f;
+    [SerializeField] private Color normalTimeColor = Color.white;
+    [SerializeField] private Color lowTimeColor = new Color(1f, 0.35f, 0.3f);
+
     [Header("Inventory")]
     [SerializeField] private TMP_Text boyNewspaperCount;
     [SerializeField] private TMP_Text boyWaterBottleCount;
@@ -27,39 +43,47 @@ public class CanvasManager : MonoBehaviour
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
         PlayerInventory.OnAnyItemCountChanged += InventoryOnItemCountChanged;
+        MatchManager.OnTimeRemainingChanged += MatchOnTimeRemainingChanged;
+        MatchManager.OnMatchEnded += MatchOnMatchEnded;
+        DeliveryScoreManager.OnScoreChanged += ScoreOnChanged;
+        DeliveryScoreManager.onZoneCountChanged += ScoreOnChanged;
     }
 
     void OnDestroy()
     {
         GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
         PlayerInventory.OnAnyItemCountChanged -= InventoryOnItemCountChanged;
+        MatchManager.OnTimeRemainingChanged -= MatchOnTimeRemainingChanged;
+        MatchManager.OnMatchEnded -= MatchOnMatchEnded;
+        DeliveryScoreManager.OnScoreChanged -= ScoreOnChanged;
+        DeliveryScoreManager.onZoneCountChanged -= ScoreOnChanged;
     }
 
     void Start()
     {
         RefreshInventoryLabels();
+
+        RefreshScoreLabels();
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
     }
 
     private void GameManagerOnGameStateChanged(GameState state)
     {
         deliveryPanel.SetActive(state == GameState.Delivery);
 
-        if (state == GameState.Pause)
-        {
-            // Pause the game
-            pausePanel.SetActive(true);
-            Time.timeScale = 0f;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else
-        {
-            // Resume the game
-            pausePanel.SetActive(false);
-            Time.timeScale = 1f;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
+        if (pausePanel != null)
+            pausePanel.SetActive(state == GameState.Pause);
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(state == GameState.GameOver);
+
+        bool frozen = state == GameState.Pause || state == GameState.GameOver;
+
+        Time.timeScale = frozen ? 0f : 1f;
+        Cursor.lockState = frozen ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = frozen;
     }
 
     public void ResumeGame()
@@ -147,6 +171,54 @@ public class CanvasManager : MonoBehaviour
             default:
                 return null;
         }
+    }
+    #endregion
+
+    #region Match HUD
+    private void MatchOnTimeRemainingChanged(float secondsLeft)
+    {
+        if (matchTimerText == null)
+            return;
+
+        int total = Mathf.CeilToInt(Mathf.Max(0f, secondsLeft));
+
+        matchTimerText.text = $"{total / 60:0}:{total % 60:00}";
+        matchTimerText.color = secondsLeft <= lowTimeSeconds ? lowTimeColor : normalTimeColor;
+    }
+
+    private void ScoreOnChanged(OwnerType owner, int _) => RefreshScoreLabel(owner);
+
+    public void RefreshScoreLabels()
+    {
+        foreach (OwnerType owner in TwoPlayerInputManager.Owners)
+            RefreshScoreLabel(owner);
+    }
+
+    private void RefreshScoreLabel(OwnerType owner)
+    {
+        TMP_Text label = owner == OwnerType.Boy ? boyScoreText : witchScoreText;
+
+        if (label == null)
+            return;
+
+        label.text = string.Format(scoreFormat,
+            DeliveryScoreManager.GetScore(owner),
+            DeliveryScoreManager.GetZoneCount(owner));
+    }
+
+    private void MatchOnMatchEnded(MatchManager.MatchResult result)
+    {
+        if (resultHeadlineText != null)
+            resultHeadlineText.text = result.Headline();
+
+        if (resultDetailText != null)
+            resultDetailText.text = $"{result.Detail()}\nBoy {result.boyScore} - {result.witchScore} Witch";
+    }
+
+    public void RestartGame()
+    {
+        if (MatchManager.instance != null)
+            MatchManager.instance.Restart();
     }
     #endregion
 }

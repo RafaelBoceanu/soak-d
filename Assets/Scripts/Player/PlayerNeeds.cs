@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerNeeds : MonoBehaviour
@@ -14,6 +15,19 @@ public class PlayerNeeds : MonoBehaviour
     public enum CharacterType { Boy, Witch }
     public CharacterType characterType;
 
+    public enum NeedFailure { Dehydrated, BladderFull }
+
+    public static event Action<OwnerType, NeedFailure> OnNeedCritical;
+
+    public OwnerType Owner =>
+        characterType == CharacterType.Boy ? OwnerType.Boy : OwnerType.Witch;
+
+    private bool bladderReported;
+    private bool dehydrationReported;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => OnNeedCritical = null;
+
     [SerializeField] private CanvasManager canvasManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -26,8 +40,13 @@ public class PlayerNeeds : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        hydration = Mathf.Clamp(hydration - (hydrationDecreaseRate / 60f) * Time.deltaTime, 0f, maxHydration);
-        pee = Mathf.Clamp(pee + (peeIncreaseRate / 60f) * Time.deltaTime, 0f, maxPee);
+        if (MatchManager.instance == null || MatchManager.instance.IsRunning)
+        {
+            hydration = Mathf.Clamp(hydration - (hydrationDecreaseRate / 60f) * Time.deltaTime, 0f, maxHydration);
+            pee = Mathf.Clamp(pee + (peeIncreaseRate / 60f) * Time.deltaTime, 0f, maxPee);
+
+            CheckCritical();
+        }
 
         if (canvasManager != null)
         {
@@ -44,6 +63,35 @@ public class PlayerNeeds : MonoBehaviour
                 canvasManager.SetWitchHydration(hydrationNormalized);
                 canvasManager.SetWitchPee(peeNormalized);
             }
+        }
+    }
+
+    private void CheckCritical()
+    {
+        if (pee >= maxPee)
+        {
+            if (!bladderReported)
+            {
+                bladderReported = true;
+                OnNeedCritical?.Invoke(Owner, NeedFailure.BladderFull);
+            }
+        }
+        else if (pee < maxPee * 0.95f)
+        {
+            bladderReported = false;
+        }
+
+        if (hydration <= 0f)
+        {
+            if (!dehydrationReported)
+            {
+                dehydrationReported = true;
+                OnNeedCritical?.Invoke(Owner, NeedFailure.Dehydrated);
+            }
+        }
+        else if (hydration > maxHydration * 0.05f)
+        {
+            dehydrationReported = false;
         }
     }
 
