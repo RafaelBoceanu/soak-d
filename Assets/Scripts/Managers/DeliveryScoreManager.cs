@@ -45,6 +45,11 @@ public class DeliveryScoreManager : MonoBehaviour
     {
         scores[(int)owner] = Mathf.Max(0, scores[(int)owner] - 1);
         OnScoreChanged?.Invoke(owner, scores[(int)owner]);
+
+        int index = (int)owner;
+
+        if (completed[index] && scores[index] < zoneCounts[index])
+            completed[index] = false;
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

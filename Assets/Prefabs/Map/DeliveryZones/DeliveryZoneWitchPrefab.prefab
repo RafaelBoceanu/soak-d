@@ -132,7 +132,7 @@ MonoBehaviour:
   newspaperModel: {fileID: 6859942228491391961}
   newspaperDestroyedModel: {fileID: 8870958943980117998}
   deliveredSound: {fileID: 3206758095005524185}
-  canRedeliverAfterDestroyed: 0
+  canRedeliverAfterDestroyed: 1
   logRejectedDeliveries: 0
   allowedOwner: 1
   wasDelivered: 0

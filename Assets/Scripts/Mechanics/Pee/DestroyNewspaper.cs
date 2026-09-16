@@ -2,11 +2,9 @@ using UnityEngine;
 
 public class DestroyNewspaper : MonoBehaviour
 {
-    [SerializeField] GameObject newspaperDestroyedModel;
-
     NewspaperDelivery delivery;
 
-    void Awake()
+    public void Bind(NewspaperDelivery owner)
     {
         delivery = GetComponentInParent<NewspaperDelivery>();
     }
@@ -18,10 +16,5 @@ public class DestroyNewspaper : MonoBehaviour
 
         if (delivery != null)
             delivery.NotifyNewspaperDestroyed();
-
-        this.gameObject.SetActive(false);
-
-        if (newspaperDestroyedModel != null)
-            newspaperDestroyedModel.SetActive(true);
     }
 }

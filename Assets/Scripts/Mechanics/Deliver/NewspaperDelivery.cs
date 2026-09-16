@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class NewspaperDelivery : MonoBehaviour
@@ -9,6 +10,9 @@ public class NewspaperDelivery : MonoBehaviour
     [Tooltip("When on, a paper destroyed by pee frees the zone so its owner can deliver again.")]
     [SerializeField] bool canRedeliverAfterDestroyed = false;
 
+    [Tooltip("Seconds the soaked newspaper stays visible before the zone goes back to looking empty")]
+    [SerializeField] float destroyedModelVisibleSeconds = 3f;
+
     [Tooltip("Log every projectile that enters this zone with the wrong owner.")]
     [SerializeField] bool logRejectedDeliveries = false;
 
@@ -18,12 +22,24 @@ public class NewspaperDelivery : MonoBehaviour
 
     bool registered;
 
+    Coroutine hideDestroyedRoutine;
+
     public OwnerType AllowedOwner => allowedOwner;
 
     public void Configure(OwnerType owner)
     {
         allowedOwner = owner;
         Register();
+    }
+
+    void Awake()
+    {
+        if (newspaperModel == null) return;
+
+        DestroyNewspaper destroyer = newspaperModel.GetComponent<DestroyNewspaper>();
+
+        if (destroyer != null)
+            destroyer.Bind(this);
     }
 
     void Start()
@@ -82,6 +98,8 @@ public class NewspaperDelivery : MonoBehaviour
         if (newspaperModel != null)
             newspaperModel.SetActive(true);
 
+        StopHideDestroyedRoutine();
+
         if (newspaperDestroyedModel != null)
             newspaperDestroyedModel.SetActive(false);
 
@@ -94,7 +112,36 @@ public class NewspaperDelivery : MonoBehaviour
 
         DeliveryScoreManager.ReportDeliveryLost(allowedOwner);
 
+        if (newspaperModel != null)
+            newspaperModel.SetActive(false);
+
+        if (newspaperDestroyedModel != null)
+            newspaperDestroyedModel.SetActive(true);
+
         if (canRedeliverAfterDestroyed)
+        {
             wasDelivered = false;
+
+            StopHideDestroyedRoutine();
+            hideDestroyedRoutine = StartCoroutine(HideDestroyedModelAfterDelay());
+        }
+    }
+
+    void StopHideDestroyedRoutine()
+    {
+        if (hideDestroyedRoutine == null) return;
+
+        StopCoroutine(hideDestroyedRoutine);
+        hideDestroyedRoutine = null;
+    }
+
+    IEnumerator HideDestroyedModelAfterDelay()
+    {
+        yield return new WaitForSeconds(destroyedModelVisibleSeconds);
+
+        if (newspaperDestroyedModel != null)
+            newspaperDestroyedModel.SetActive(false);
+
+        hideDestroyedRoutine = null;
     }
 }
