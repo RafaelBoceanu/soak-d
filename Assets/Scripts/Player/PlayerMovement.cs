@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.SettingsManagement;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -37,8 +38,16 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 inputVector = Vector3.zero;
     private bool isSprinting = false;
     private bool isAiming = false;
+    public bool IsSprinting => isSprinting;
+    public bool IsAiming => isAiming;
     private bool isMoving = false;
     private bool movementLocked = false;
+
+    [Header("Puddle splash")]
+    [SerializeField] private ParticleSystem puddleSplash;
+    [SerializeField, Min(0f)] private float splashCheckInterval = 0.15f;
+    private float nextSplashCheck;
+    private bool wasInPuddle;
 
     public bool CanPee => isActiveAndEnabled && !isMoving;
 
@@ -66,6 +75,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleMovement();
+
+        CheckPuddleSplash();
     }
 
     private void HandleMovement()
@@ -152,6 +163,21 @@ public class PlayerMovement : MonoBehaviour
             targetRotation,
             1f - Mathf.Exp(-turnSpeed * Time.deltaTime)
         );
+    }
+
+    private void CheckPuddleSplash()
+    {
+        if (puddleSplash == null || Time.time < nextSplashCheck)
+            return;
+
+        nextSplashCheck = Time.time + splashCheckInterval;
+
+        bool inPuddle = isMoving && PeePuddle.IsInsideAnyPuddle(transform.position);
+
+        if (inPuddle && !wasInPuddle)
+            puddleSplash.Play();
+
+        wasInPuddle = inPuddle;
     }
   
     //Called by PlayerInputHandler

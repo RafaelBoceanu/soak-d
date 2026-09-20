@@ -25,6 +25,20 @@ public class ProjectileTrajectory : MonoBehaviour
             trajectoryLine = GetComponent<LineRenderer>(); 
     }
 
+    static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
+    [SerializeField] float scrollSpeed = -1.5f;
+    float scrollOffset;
+
+    void Update()
+    {
+        if (trajectoryLine == null || !trajectoryLine.enabled)
+            return;
+
+        scrollOffset += scrollSpeed * Time.deltaTime;
+        trajectoryLine.material.SetTextureOffset(
+           BaseMapId, new Vector2(scrollOffset, 0f));
+    }
+
     public void PredictTrajectory(ProjectileProperties projectile)
     {
         Vector3 velocity = projectile.direction * (projectile.initialSpeed / projectile.mass);

@@ -66,6 +66,44 @@ public class PeePuddle : MonoBehaviour
     private Puddle current;
     private bool warnedAboutSetup;
 
+    private static readonly List<PeePuddle> instances = new List<PeePuddle>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => instances.Clear();
+
+    void OnEnable() => instances.Add(this);
+    void OnDisable() => instances.Remove(this);
+
+    public static bool IsInsideAnyPuddle(Vector3 worldPosition)
+    {
+        for (int i = 0; i <instances.Count; i++)
+        {
+            if (instances[i].IsInside(worldPosition))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsInside(Vector3 worldPosition)
+    {
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            Puddle puddle = puddles[i];
+
+            if (puddle.Projector == null)
+                continue;
+
+            Vector3 gap = puddle.Projector.transform.position - worldPosition;
+            gap.y = 0f;
+
+            if (gap.sqrMagnitude <= puddle.Radius * puddle.Radius)
+                return true;
+        }
+
+        return false;
+    }
+
     void Update()
     {
         AgePuddles();

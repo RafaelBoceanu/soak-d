@@ -14,6 +14,7 @@ public class HousesManager : MonoBehaviour
     [Header("Zone Settings")]
     [SerializeField] private int boyZonesCount = 5;
     [SerializeField] private int witchZonesCount = 5;
+    
 
     [Tooltip("Child object on a house that marks the street-facing spot where a zone sits.")]
     [SerializeField] private string frontMarkerName = "Front";

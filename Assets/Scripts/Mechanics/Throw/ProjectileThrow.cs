@@ -12,6 +12,8 @@ public class ProjectileThrow : MonoBehaviour
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private OwnerType owner;
     [SerializeField] private float minForce = 5f;
+    [SerializeField] private float tumbleTorque = 0.10f;
+    [SerializeField] private Color trailColor = Color.white;
 
     [Header("Ammo")]
     [Tooltip("Inventory item spent by one throw.")]
@@ -91,6 +93,12 @@ public class ProjectileThrow : MonoBehaviour
                 currentForce += chargeRate * Time.deltaTime;
                 currentForce = Mathf.Clamp(currentForce, 0f, maxForce);
 
+            }
+
+            if (crosshairUI != null)
+            {
+                float charge = Mathf.InverseLerp(minForce, maxForce, currentForce);
+                crosshairUI.transform.localScale = Vector3.one * Mathf.Lerp(1f, 1.6f, charge);
             }
 
             Predict();
@@ -183,18 +191,34 @@ public class ProjectileThrow : MonoBehaviour
                 return;
         }
 
+        ProjectileProperties data = ProjectileData();
+
+        Quaternion spawnRot = Quaternion.FromToRotation(data.direction, Vector3.up);
+
         Rigidbody thrownObject = Instantiate(
             objectToThrow, 
-            spawnPosition.position, 
-            Quaternion.identity
+            data.initialPosition, 
+            spawnRot
         );
 
-        thrownObject.AddForce(playerCamera.transform.forward * currentForce, ForceMode.Impulse);
+        thrownObject.AddForce(data.direction * currentForce, ForceMode.Impulse);
+
+        Vector3 tumbleAxis = Vector3.Cross(data.direction, Vector3.up);
+        if (tumbleAxis.sqrMagnitude < 0.001f)
+            tumbleAxis = playerCamera.transform.right;
+
+        tumbleAxis = (tumbleAxis.normalized + Random.insideUnitSphere * 0.12f).normalized;
+        thrownObject.AddTorque(tumbleAxis * tumbleTorque, ForceMode.Impulse);
 
         ThrownProjectile projectile = thrownObject.GetComponent<ThrownProjectile>();
         if (projectile != null)
-        {
             projectile.owner = owner;
+
+        TrailRenderer trail = thrownObject.GetComponentInChildren<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.startColor = trailColor;
+            trail.endColor = new Color(trailColor.r, trailColor.g, trailColor.b, 0f);
         }
 
         StartCoroutine(DestroyObject(thrownObject.gameObject));

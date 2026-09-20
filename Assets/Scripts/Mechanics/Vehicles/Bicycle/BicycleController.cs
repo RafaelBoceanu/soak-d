@@ -10,7 +10,7 @@ public class BicycleController : MonoBehaviour
     bool isGrounded;
     Vector3 groundNormal = Vector3.up;
 
-    float visualSteer, leanAngle, crankAngle, wheelAngle;
+    float visualSteer, leanAngle, crankAngle;
     float yawRate, corneringLoad;
     bool stepping;
     string stepReason = "idle";

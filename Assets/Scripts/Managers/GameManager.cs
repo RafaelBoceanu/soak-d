@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Android;
 
 public class GameManager : MonoBehaviour
 {
@@ -134,12 +133,6 @@ public class GameManager : MonoBehaviour
             if (movement != null)
                 movement.enabled = false;
         }
-
-        if (boyCamera != null)
-            boyCamera.SetActive(false);
-
-        if (witchCamera != null)
-            witchCamera.SetActive(false);
     }
 }
 public enum GameState

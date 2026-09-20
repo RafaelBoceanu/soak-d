@@ -16,10 +16,14 @@ public class WaterBottleDrinking : MonoBehaviour
     [Tooltip("Refuse to drink at full hydration so a bottle is never wasted.")]
     [SerializeField] private bool blockWhenFull = true;
 
+    [Tooltip("Hydration within this much of the maximum counts as full")]
+    [SerializeField, Min(0f)] private float fullTolerance = 1f;
+
     [Header("Reference")]
     [SerializeField] private PlayerNeeds playerNeeds;
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private AudioSource drinkSound;
+    [SerializeField] private ParticleSystem drinkEffect;
 
     float nextDrinkTime;
 
@@ -76,7 +80,7 @@ public class WaterBottleDrinking : MonoBehaviour
         if (!inventory.Has(InventoryItemType.WaterBottle))
             return false;
 
-        if (blockWhenFull && playerNeeds.hydration >= playerNeeds.maxHydration)
+        if (blockWhenFull && playerNeeds.hydration >= playerNeeds.maxHydration - fullTolerance)
             return false;
 
         if (!inventory.TryConsume(InventoryItemType.WaterBottle))
@@ -87,6 +91,9 @@ public class WaterBottleDrinking : MonoBehaviour
 
         if (drinkSound != null)
             drinkSound.Play();
+
+        if (drinkEffect != null)
+            drinkEffect.Play();
 
         return true;
     }

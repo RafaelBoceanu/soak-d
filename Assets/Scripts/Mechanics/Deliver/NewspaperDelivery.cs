@@ -16,6 +16,13 @@ public class NewspaperDelivery : MonoBehaviour
     [Tooltip("Log every projectile that enters this zone with the wrong owner.")]
     [SerializeField] bool logRejectedDeliveries = false;
 
+    [Header("Feedback")]
+    [SerializeField] ParticleSystem deliveredEffect;
+    [SerializeField] ParticleSystem destroyedEffect;
+
+    [Header("Zone marker")]
+    [SerializeField] GameObject zoneMarker;
+
     public OwnerType allowedOwner;
 
     public bool wasDelivered = false;
@@ -95,6 +102,14 @@ public class NewspaperDelivery : MonoBehaviour
         else
             Debug.LogWarning($"No delivered sound assigned to {name}", this);
 
+        if (deliveredEffect != null)
+            deliveredEffect.Play();
+
+        PlayersCameraController.Shake(allowedOwner, 0.30f);
+
+        if (zoneMarker != null)
+            zoneMarker.SetActive(false);
+
         if (newspaperModel != null)
             newspaperModel.SetActive(true);
 
@@ -111,6 +126,10 @@ public class NewspaperDelivery : MonoBehaviour
         if (!wasDelivered) return;
 
         DeliveryScoreManager.ReportDeliveryLost(allowedOwner);
+        PlayersCameraController.Shake(allowedOwner, 0.45f);
+
+        if (destroyedEffect != null)
+            destroyedEffect.Play();
 
         if (newspaperModel != null)
             newspaperModel.SetActive(false);
@@ -121,6 +140,9 @@ public class NewspaperDelivery : MonoBehaviour
         if (canRedeliverAfterDestroyed)
         {
             wasDelivered = false;
+
+            if (zoneMarker != null)
+                zoneMarker.SetActive(true);
 
             StopHideDestroyedRoutine();
             hideDestroyedRoutine = StartCoroutine(HideDestroyedModelAfterDelay());

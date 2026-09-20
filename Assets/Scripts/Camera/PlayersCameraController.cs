@@ -38,6 +38,24 @@ public class PlayersCameraController : MonoBehaviour
     [SerializeField] float lookSmoothTime = 0.05f;
     [SerializeField] float rotationSharpness = 20f;
 
+    [Header("FOV")]
+    [Tooltip("Drag the Boy/Witch root here - the object with PlayerMovement")]
+    [SerializeField] PlayerMovement movement;
+    [SerializeField] float baseFov = 68f;
+    [SerializeField] float sprintFovBoost = 7f;
+    [SerializeField] float aimFovPull = -5f;
+    [SerializeField] float fovSharpness = 6f;
+
+    [Header("Shake")]
+    [SerializeField] float shakeMaxOffset = 0.25f;
+    [SerializeField] float shakeMaxRoll = 2.5f;
+    [SerializeField] float shakeFrequency = 22f;
+    [SerializeField] float traumaDecay = 1.6f;
+
+    float currentFov;
+    float trauma;
+    float shakeSeed;
+
     Vector3 pivot;
     Camera cam;
     Transform ownerRoot;
@@ -65,6 +83,12 @@ public class PlayersCameraController : MonoBehaviour
             cam = GetComponentInChildren<Camera>();
 
         ownerRoot = ResolveOwnerRoot();
+
+        shakeSeed = Random.value * 1000f;
+        currentFov = baseFov;
+
+        if (cam != null)
+            cam.fieldOfView = baseFov;
     }
 
     void OnDestroy()
@@ -125,6 +149,9 @@ public class PlayersCameraController : MonoBehaviour
             targetRotation,
             1f - Mathf.Exp(-rotationSharpness * Time.deltaTime)
         );
+
+        ApplyFov();
+        ApplyShake();
     }
 
     private Vector3 FramedTarget(Quaternion rotation)
@@ -174,4 +201,56 @@ public class PlayersCameraController : MonoBehaviour
         distanceToTarget = newDistance;
         framingOffset = newFramingOffset;
     }
+
+    #region FOV and shake
+    private void ApplyFov()
+    {
+        if (cam == null) return;
+
+        float target = baseFov;
+
+        if (movement != null)
+        {
+            if (movement.IsSprinting) target += sprintFovBoost;
+            if (movement.IsAiming)    target += aimFovPull;
+        }
+
+        currentFov = Mathf.Lerp(
+            currentFov, target, 1f - Mathf.Exp(-fovSharpness * Time.deltaTime));
+
+        cam.fieldOfView = currentFov;
+    }
+
+    private void ApplyShake()
+    {
+        if (trauma <= 0f) return;
+
+        trauma = Mathf.Max(0f, trauma - traumaDecay * Time.deltaTime);
+
+        float strength = trauma * trauma;
+        float t = Time.time * shakeFrequency;
+
+        float nx = Mathf.PerlinNoise(shakeSeed,       t) * 2f - 1f;
+        float ny = Mathf.PerlinNoise(shakeSeed + 17f, t) * 2f - 1f;
+        float nz = Mathf.PerlinNoise(shakeSeed + 31f, t) * 2f - 1f;
+
+        transform.position += transform.right * (nx * shakeMaxOffset * strength)
+                            + transform.up    * (ny * shakeMaxOffset * strength);
+
+        transform.rotation *= Quaternion.Euler(0f, 0f, nz * shakeMaxRoll * strength);
+    }
+
+    public void AddShake(float amount)
+    {
+        trauma = Mathf.Clamp01(trauma + amount);
+    }
+
+    public static void Shake(OwnerType owner, float amount)
+    {
+        PlayersCameraController rig = ForOwner(owner);
+
+        if (rig != null)
+            rig.AddShake(amount);
+    }
+    #endregion
 }
