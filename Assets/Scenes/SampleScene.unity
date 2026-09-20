@@ -11229,6 +11229,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 449174, guid: e8bf8a360364d0948a2f6427cf3cc569, type: 3}
   m_PrefabInstance: {fileID: 1564819289}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &224627452
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4242947124325428835, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_Name
+      value: DeliveryZoneWitchPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -19.555855
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.11999979
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -20.302073
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148827424884078845, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a2e1cd5b7dc4edf48bed1ce433d78051, type: 3}
 --- !u!1 &230034715
 GameObject:
   m_ObjectHideFlags: 0
@@ -11943,8 +12000,8 @@ MonoBehaviour:
   waitForZones: 1
   warmupTimeout: 10
   endOnAllDelivered: 1
-  onBladderFull: 2
-  onDehydrated: 2
+  onBladderFull: 1
+  onDehydrated: 0
 --- !u!1 &324114941
 GameObject:
   m_ObjectHideFlags: 0
@@ -13445,8 +13502,8 @@ MonoBehaviour:
   witchScoreText: {fileID: 1387164640}
   resultHeadlineText: {fileID: 594787446}
   resultDetailText: {fileID: 1735980068}
-  boyConfetti: {fileID: 0}
-  witchConfetti: {fileID: 0}
+  boyConfetti: {fileID: 1611538260}
+  witchConfetti: {fileID: 1714767193}
   scoreFormat: <mspace=0.6em>{0}/{1}</mspace>
   lowTimeSeconds: 30
   normalTimeColor: {r: 1, g: 1, b: 1, a: 1}
@@ -13748,7 +13805,7 @@ MonoBehaviour:
   mapManager: {fileID: 1697544008}
   bottlePrefab: {fileID: 711398265840462241, guid: c8cf783f5c7980f47a5792cf1102b668, type: 3}
   bottlesParent: {fileID: 1733753898}
-  bottlesInCity: 30
+  bottlesInCity: 18
   respawnElsewhere: 1
   respawnDelayMin: 15
   respawnDelayMax: 30
@@ -14172,6 +14229,7 @@ MonoBehaviour:
   controller: {fileID: 541694501}
   cameraTransform: {fileID: 391078719}
   animator: {fileID: 1066874716761359635}
+  playerNeeds: {fileID: 0}
   speed: 2
   sprintSpeed: 4
   rotationSpeed: 10
@@ -14398,7 +14456,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: 1
-  peeThreshold: 5
+  peeThreshold: 0.05
   minPeeValue: 0.01
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
   spawnPoint: {fileID: 1329764725}
@@ -14423,12 +14481,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHydration: 100
   maxPee: 100
-  hydrationDecreaseRate: 5
-  peeIncreaseRate: 25
+  hydrationDrainedPerRound: 0.75
+  sprintExtraDrainPerRound: 0.35
+  bladderFilledPerRound: 0.15
+  fallbackRoundSeconds: 180
+  bladderPerHydration: 1
+  digestionSecondsPerBar: 60
+  peeDrainAtEmpty: 4
+  peeDrainAtFull: 12
+  dehydratedBelow: 0.2
+  flowWhenBoneDry: 0.35
+  accidentStunSeconds: 3
+  bladderAfterAccident: 0
   hydration: 0
   pee: 0
   characterType: 1
   canvasManager: {fileID: 466912801}
+  playerMovement: {fileID: 0}
 --- !u!114 &541694508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14503,7 +14572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterBottleDrinking
   owner: 1
-  hydrationPerBottle: 15
+  hydrationPerBottle: 25
   drinkCooldown: 0.5
   blockWhenFull: 1
   fullTolerance: 1
@@ -14529,8 +14598,8 @@ MonoBehaviour:
     startingAmount: 10
     maxAmount: 20
   - item: 1
-    startingAmount: 3
-    maxAmount: 6
+    startingAmount: 2
+    maxAmount: 4
   logChanges: 1
 --- !u!1 &543856485
 GameObject:
@@ -44716,6 +44785,7 @@ MonoBehaviour:
   controller: {fileID: 1552542199}
   cameraTransform: {fileID: 1839225297}
   animator: {fileID: 7743428487769007047}
+  playerNeeds: {fileID: 0}
   speed: 2
   sprintSpeed: 4
   rotationSpeed: 10
@@ -44942,7 +45012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: 0
-  peeThreshold: 5
+  peeThreshold: 0.05
   minPeeValue: 0.01
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
   spawnPoint: {fileID: 1046671228}
@@ -44967,12 +45037,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHydration: 100
   maxPee: 100
-  hydrationDecreaseRate: 5
-  peeIncreaseRate: 25
+  hydrationDrainedPerRound: 0.75
+  sprintExtraDrainPerRound: 0.35
+  bladderFilledPerRound: 0.15
+  fallbackRoundSeconds: 180
+  bladderPerHydration: 1
+  digestionSecondsPerBar: 60
+  peeDrainAtEmpty: 4
+  peeDrainAtFull: 12
+  dehydratedBelow: 0.2
+  flowWhenBoneDry: 0.35
+  accidentStunSeconds: 3
+  bladderAfterAccident: 0
   hydration: 0
   pee: 0
   characterType: 0
   canvasManager: {fileID: 466912801}
+  playerMovement: {fileID: 0}
 --- !u!114 &1552542206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45047,7 +45128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterBottleDrinking
   owner: 0
-  hydrationPerBottle: 15
+  hydrationPerBottle: 25
   drinkCooldown: 0.5
   blockWhenFull: 1
   fullTolerance: 1
@@ -45073,8 +45154,8 @@ MonoBehaviour:
     startingAmount: 10
     maxAmount: 20
   - item: 1
-    startingAmount: 3
-    maxAmount: 6
+    startingAmount: 2
+    maxAmount: 4
   logChanges: 1
 --- !u!1 &1557376950
 GameObject:
@@ -46260,7 +46341,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -52475,7 +52556,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -85607,3 +85688,4 @@ SceneRoots:
   - {fileID: 925322898}
   - {fileID: 995606564}
   - {fileID: 1155414117}
+  - {fileID: 224627452}

@@ -7,11 +7,15 @@ public class PeeSystem : MonoBehaviour
     [SerializeField] private OwnerType owner = OwnerType.Boy;
 
     [Header("Pee Settings")]
-    [SerializeField] private float peeThreshold = 0.2f;
-    [SerializeField] private float minPeeValue = 0.01f;
+    [Tooltip("How full the bladder has to be before a stream will start, as a share of the bar.")]
+    [SerializeField, Range(0f, 1f)] private float peeThreshold = 0.05f;
+
+    [Tooltip("Share of the bar below which the stream gives out.")]
+    [SerializeField, Range(0f, 1f)] private float minPeeValue = 0.01f;
 
     private bool isPeeing = false;
     private bool zipperClosed = true;
+    private float currentFlow;
 
     private PlayerInputHandler inputHandler;
     private PlayerMovement playerMovement;
@@ -32,6 +36,8 @@ public class PeeSystem : MonoBehaviour
     private ParticleSystem.MainModule main;
 
     private PlayerInputContext Controls => TwoPlayerInputManager.GetPlayer(owner);
+
+    public float CurrentFlow => isPeeing ? currentFlow : 0f;
 
     void Awake()
     {
@@ -98,6 +104,12 @@ public class PeeSystem : MonoBehaviour
             return;
         }
 
+        if (playerNeeds != null && playerNeeds.IsHavingAccident)
+        {
+            CancelPeeing();
+            return;
+        }
+
         if (input.ZipPressed)
         {
             if (zipperClosed)
@@ -118,22 +130,22 @@ public class PeeSystem : MonoBehaviour
             CloseZipper(true);
         }
 
-        float pee = playerNeeds.pee;
-        float normalizedPee = pee / playerNeeds.maxPee;
+        float normalizedPee = playerNeeds.maxPee > 0f ? playerNeeds.pee / playerNeeds.maxPee : 0f;
 
-        bool canStartPeeing = pee >= peeThreshold;
-        bool hasPeeLeft = pee > minPeeValue;
+        bool canStartPeeing = normalizedPee >= peeThreshold;
+        bool hasPeeLeft = normalizedPee > minPeeValue;
 
         if (!zipperClosed && hasPeeLeft && (canStartPeeing || isPeeing))
         {
             if (input.Pee)
             {
                 StartPeeing();
-                playerNeeds.Pee(1f * Time.deltaTime);
-                UpdateVisuals(normalizedPee);
+                playerNeeds.Relieve(Time.deltaTime);
+                currentFlow = normalizedPee * playerNeeds.FlowScale;
+                UpdateVisuals(currentFlow);
                 if (peePuddle != null)
                 {
-                    peePuddle.Grow(normalizedPee);
+                    peePuddle.Grow(currentFlow);
                 }
             }
             else
@@ -163,6 +175,7 @@ public class PeeSystem : MonoBehaviour
         if (isPeeing)
         {
             isPeeing = false;
+            currentFlow = 0f;
             peeParticleSystem.Stop();
             peeSound.Stop();
             if (peePuddle != null)

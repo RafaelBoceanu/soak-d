@@ -56,11 +56,11 @@ public class MatchManager : MonoBehaviour
     [Tooltip("End the round the moment a player has delivered to every one of their own zones")]
     [SerializeField] private bool endOnAllDelivered = true;
 
-    [Tooltip("What happens to a player whose bladded fills completely")]
-    [SerializeField] private NeedPenalty onBladderFull = NeedPenalty.Knockout;
+    [Tooltip("What happens to a player whose bladder fills completely")]
+    [SerializeField] private NeedPenalty onBladderFull = NeedPenalty.LoseOneDelivery;
 
     [Tooltip("What happens to a player who runs completely dry")]
-    [SerializeField] private NeedPenalty onDehydrated = NeedPenalty.Knockout;
+    [SerializeField] private NeedPenalty onDehydrated = NeedPenalty.Ignore;
 
     public static event Action OnMatchStarted;
     public static event Action<float> OnTimeRemainingChanged;
@@ -178,7 +178,7 @@ public class MatchManager : MonoBehaviour
         switch (penalty)
         {
             case NeedPenalty.LoseOneDelivery:
-                DeliveryScoreManager.ReportDeliveryLost(owner);
+                NewspaperDelivery.RuinOneDelivered(owner);
                 break;
 
             case NeedPenalty.Knockout:

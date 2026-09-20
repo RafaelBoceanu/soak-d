@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -42,6 +42,14 @@ public class PeePuddle : MonoBehaviour
     [SerializeField, Range(0f, 0.6f)] private float sizeJitter = 0.3f;
     [Tooltip("Randomly mirror the blob, so rotation alone does not give it away.")]
     [SerializeField] private bool randomMirror = true;
+
+    [Header("Accident")]
+    [Tooltip("Radius of the puddle left underneath a player who wets themselves.")]
+    [SerializeField, Min(0f)] private float accidentRadius = 2.2f;
+    [Tooltip("Seconds the accident puddle takes to spread out to that size.")]
+    [SerializeField, Min(0.01f)] private float accidentSpreadSeconds = 1.25f;
+    [Tooltip("How far below the player to look for the ground the puddle lands on.")]
+    [SerializeField, Min(0.1f)] private float accidentGroundProbe = 3f;
 
     [Header("Lifetime")]
     [SerializeField] private int maxPuddles = 8;
@@ -137,6 +145,55 @@ public class PeePuddle : MonoBehaviour
         current.Radius = Mathf.Min(current.Radius + growthPerSecond * Mathf.Max(flow, 0.15f) * Time.deltaTime, current.MaxRadius);
         current.Age = 0f;
         ApplySize(current);
+    }
+
+    public void Spill(Vector3 worldPosition)
+    {
+        if (puddleMaterial == null)
+        {
+            Debug.LogError($"[PeePuddle] {name} has no Puddle Material, so an accident leaves " +
+                           $"nothing behind.", this);
+            return;
+        }
+
+        Vector3 origin = worldPosition + Vector3.up * 0.05f;
+
+        if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, accidentGroundProbe + 0.5f, groundMask, QueryTriggerInteraction.Ignore))
+        {
+            return;
+        }
+
+        EndPuddle();
+
+        Puddle puddle = CreatePuddle(hit);
+
+        puddle.MaxRadius = Mathf.Max(accidentRadius, startRadius);
+
+        StartCoroutine(SpreadAccident(puddle));
+    }
+
+    private IEnumerator SpreadAccident(Puddle puddle)
+    {
+        float from = puddle.Radius;
+        float elapsed = 0f;
+
+        while (elapsed < accidentSpreadSeconds && puddle.Projector != null)
+        {
+            elapsed += Time.deltaTime;
+
+            puddle.Radius = Mathf.Lerp(from, puddle.MaxRadius,
+                                       Mathf.Clamp01(elapsed / accidentSpreadSeconds));
+
+            // Hold off the fade until it has finished spreading.
+            puddle.Age = 0f;
+
+            ApplySize(puddle);
+
+            yield return null;
+        }
+
+        // Hand it over to the normal ageing and fading from here.
+        puddle.Finished = true;
     }
 
     public void EndPuddle()

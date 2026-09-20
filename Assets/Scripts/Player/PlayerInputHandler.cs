@@ -28,6 +28,20 @@ public class PlayerInputHandler : MonoBehaviour
         cameraController != null ? cameraController : PlayersCameraController.ForOwner(owner);
     public bool IsRiding => currentVehicle != null;
 
+    public MountableVehicle CurrentVehicle => currentVehicle;
+
+    public bool ForceDismount()
+    {
+        if (currentVehicle == null)
+            return false;
+
+        if (!currentVehicle.Dismount(this))
+            return false;
+
+        currentVehicle = null;
+        return true;
+    }    
+
     void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();

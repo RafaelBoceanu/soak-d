@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.InputSystem.Controls;
 
 [DisallowMultipleComponent]
 public class InventoryRefillZone : MonoBehaviour

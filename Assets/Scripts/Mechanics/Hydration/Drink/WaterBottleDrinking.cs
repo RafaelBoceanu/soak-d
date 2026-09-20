@@ -7,8 +7,8 @@ public class WaterBottleDrinking : MonoBehaviour
     [SerializeField] private OwnerType owner = OwnerType.Boy;
 
     [Header("Drinking")]
-    [Tooltip("Hydraion restored by one water bottle.")]
-    [SerializeField] private float hydrationPerBottle = 15f;
+    [Tooltip("Hydration restored by one water bottle.")]
+    [SerializeField] private float hydrationPerBottle = 25f;
 
     [Tooltip("Seconds before another bottle can be opened.")]
     [SerializeField] private float drinkCooldown = 0.5f;

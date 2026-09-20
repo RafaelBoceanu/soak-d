@@ -1,4 +1,6 @@
+using NUnit.Framework;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NewspaperDelivery : MonoBehaviour
@@ -31,6 +33,39 @@ public class NewspaperDelivery : MonoBehaviour
 
     Coroutine hideDestroyedRoutine;
 
+    static readonly List<NewspaperDelivery> all = new List<NewspaperDelivery>();
+
+    static int deliveryCounter;
+
+    int deliveredAt;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        all.Clear();
+        deliveryCounter = 0;
+    }
+
+    public static bool RuinOneDelivered(OwnerType owner)
+    {
+        NewspaperDelivery newest = null;
+
+        foreach (NewspaperDelivery zone in all)
+        {
+            if (zone == null || !zone.wasDelivered || zone.allowedOwner != owner)
+                continue;
+
+            if (newest == null || zone.deliveredAt > newest.deliveredAt)
+                newest = zone;
+        }
+
+        if (newest == null)
+            return false;
+
+        newest.NotifyNewspaperDestroyed();
+        return true;
+    }
+
     public OwnerType AllowedOwner => allowedOwner;
 
     public void Configure(OwnerType owner)
@@ -60,6 +95,7 @@ public class NewspaperDelivery : MonoBehaviour
 
         registered = false;
         DeliveryScoreManager.UnregisterZone(allowedOwner);
+        all.Remove(this);
     }
 
     void Register()
@@ -68,6 +104,7 @@ public class NewspaperDelivery : MonoBehaviour
 
         registered = true;
         DeliveryScoreManager.RegisterZone(allowedOwner);
+        all.Add(this);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -96,6 +133,7 @@ public class NewspaperDelivery : MonoBehaviour
     void Deliver()
     {
         wasDelivered = true;
+        deliveredAt = ++deliveryCounter;
 
         if (deliveredSound != null)
             deliveredSound.Play();

@@ -146,6 +146,14 @@ public class MountableVehicle : MonoBehaviour
         }
     }
 
+    public void SetRiderControl(bool allowed)
+    {
+        if (!isOccupied) return;
+
+        if (bike != null) bike.SetControl(allowed);
+        if (broom != null) broom.SetControl(allowed);
+    }
+
     public bool Dismount(PlayerInputHandler player)
     {
         if (!isOccupied || currentPlayerInput != player) return false;

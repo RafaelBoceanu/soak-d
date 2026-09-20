@@ -1,5 +1,3 @@
-using System;
-using UnityEditor.SettingsManagement;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -7,7 +5,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private CharacterController controller;
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] Animator animator;
+    [SerializeField] private Animator animator;
+    [SerializeField] private PlayerNeeds playerNeeds;
 
     [Header("Movement Settings")]
     [SerializeField] private float speed = 2.0f;
@@ -42,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
     public bool IsAiming => isAiming;
     private bool isMoving = false;
     private bool movementLocked = false;
+    private bool stunned = false;
 
     [Header("Puddle splash")]
     [SerializeField] private ParticleSystem puddleSplash;
@@ -49,7 +49,12 @@ public class PlayerMovement : MonoBehaviour
     private float nextSplashCheck;
     private bool wasInPuddle;
 
-    public bool CanPee => isActiveAndEnabled && !isMoving;
+    public bool IsMoving => isMoving;
+    public bool IsStunned => stunned;
+
+    private bool SprintAllowed => playerNeeds == null || playerNeeds.CanSprint;
+
+    public bool CanPee => isActiveAndEnabled && !isMoving && !stunned;
 
     private void Awake()
     {
@@ -58,6 +63,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+
+        if (playerNeeds == null)
+            playerNeeds = GetComponent<PlayerNeeds>();
     }
 
     private void OnDisable()
@@ -95,14 +103,14 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * inputVector.z + camRight * inputVector.x;
         move = Vector3.ClampMagnitude(move, 1f);
 
-        if (movementLocked)
+        if (movementLocked || stunned)
         {
             move = Vector3.zero;
         }
 
         isMoving = move.magnitude >= MoveDeadzone;
 
-        float targetSpeed = isSprinting ? sprintSpeed : speed;
+        float targetSpeed = isSprinting && SprintAllowed ? sprintSpeed : speed;
         float targetAnimSpeed = move.magnitude * targetSpeed;
 
         //Smooth animation
@@ -201,6 +209,16 @@ public class PlayerMovement : MonoBehaviour
         movementLocked = locked;
 
         if (locked)
+        {
+            isMoving = false;
+        }
+    }
+
+    public void SetStunned(bool value)
+    {
+        stunned = value;
+
+        if (value)
         {
             isMoving = false;
         }
