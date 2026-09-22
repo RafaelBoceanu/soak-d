@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PedestriansManager : MonoBehaviour
 {
@@ -44,12 +46,26 @@ public class PedestriansManager : MonoBehaviour
              "standing where they were.")]
     [SerializeField] private bool recycleToPlayers = true;
 
+    [Tooltip("Roughly how many pedestrians there should be per pavement node in range.")]
+    [SerializeField, Range(0f, 1f)] private float pedestriansPerNode = 0.15f;
+
     [Tooltip("Closest a recycled pedestrian may be dropped so none appear out of thin air.")]
     [SerializeField, Min(0f)] private float recycleMinDistance = 35f;
 
+    [Tooltip("Shortest gap allowed between a recyled pedestrian and one already out walking.")]
+    [SerializeField, Min(0f)] private float recycleMinSpacing = 10f;
+
     [Tooltip("How many sleeping pedestrians may be moved per check, so a long walk does not " +
              "relocate the whole crowd in one frame.")]
-    [SerializeField, Min(1)] private int recyclesPerCheck = 4;
+    [SerializeField, Min(1)] private int recyclesPerCheck = 2;
+
+    [SerializeField, Min(1)] private int recycleAttempts = 8;
+
+    [Tooltip("Only drop a pedestrian where no camera can see them.")]
+    [SerializeField] private bool recycleOutOfSightOnly = true;
+
+    [Tooltip("Cameras that must not see a pedestrian arrive.")]
+    [SerializeField] private Camera[] viewCameras;
 
     [Header("Ground")]
     [Tooltip("What the graph is allowed to stand on: the pavement, the road, the ground")]
@@ -66,6 +82,13 @@ public class PedestriansManager : MonoBehaviour
     private readonly List<PedestrianAgent> pedestrians = new List<PedestrianAgent>();
     private readonly List<Vector3> takenSpots = new List<Vector3>();
     private readonly List<int> nearbyNodes = new List<int>();
+    private readonly List<int> nodeScratch = new List<int>();
+    private readonly HashSet<int> nearbySet = new HashSet<int>();
+    private readonly List<PedestrianAgent> awake = new List<PedestrianAgent>();
+    private readonly List<PedestrianAgent> sleeping = new List<PedestrianAgent>();
+    private readonly Plane[] frustum = new Plane[6];
+
+    private Camera[] camerasThisCheck;
     private bool warnedNoNearbyStreets;
 
     private float nextActivationCheck;
@@ -266,13 +289,14 @@ public class PedestriansManager : MonoBehaviour
         UpdateActivation(recyclesPerCheck);
     }
 
-    void UpdateActivation(int recycleBudget)
+    async Task UpdateActivation(int recycleBudget)
     { 
         float sqrOn = activationRadius * activationRadius;
         float wake = activationRadius + activationHysteresis;
         float sqrOff = wake * wake;
 
-        int recycled = 0;
+        awake.Clear();
+        sleeping.Clear();
 
         for (int i = pedestrians.Count - 1; i >= 0; i--)
         {
@@ -286,57 +310,100 @@ public class PedestriansManager : MonoBehaviour
 
             float sqrDistance = NearestFocusSqrDistance(agent.transform.position);
             
-            if (!agent.gameObject.activeSelf)
+            if (agent.gameObject.activeSelf)
             {
-                if (sqrDistance <= sqrOn)
-                    agent.gameObject.SetActive(true);
-                else if (recycled < recycleBudget && TryRecycle(agent))
-                    recycled++;
+                if (sqrDistance > sqrOff)
+                {
+                    agent.gameObject.SetActive(false);
+                    sleeping.Add(agent);
+                }
+                else 
+                {
+                    awake.Add(agent);
+                }
 
                 continue;
             }
 
-            if (sqrDistance > sqrOff)
-                agent.gameObject.SetActive(false);
+            if (sqrDistance <= sqrOn)
+            {
+                agent.gameObject.SetActive(true);
+                awake.Add(agent);
+            }
+            else
+            {
+                sleeping.Add(agent);
+            }
+        }
+
+        if (!recycleToPlayers || sleeping.Count == 0) return;
+
+        CollectNearbyNodes();
+
+        int allowance = Mathf.Min(
+            pedestrians.Count,
+            Mathf.RoundToInt(nearbyNodes.Count * pedestriansPerNode));
+
+        if (awake.Count >= allowance) return;
+
+        camerasThisCheck = recycleOutOfSightOnly
+            ? (viewCameras != null && viewCameras.Length > 0 ? viewCameras : Camera.allCameras)
+            : null;
+
+        int recycled = 0;
+
+        for (int i = 0; i < sleeping.Count; i++)
+        {
+            if (recycled >= recycleBudget) break;
+            if (awake.Count >= allowance) break;
+
+            if (!TryRecycle(sleeping[i])) continue;
+
+            awake.Add(sleeping[i]);
+            recycled++;
+        }
+    }
+
+    void CollectNearbyNodes()
+    {
+        nearbyNodes.Clear();
+        nearbySet.Clear();
+
+        if (focusTargets == null) return;
+
+        foreach (Transform target in focusTargets)
+        {
+            if (target == null) continue;
+
+            graph.CollectNodesNear(target.position, activationRadius, nodeScratch);
+
+            foreach (int node in nodeScratch)
+            {
+                if (nearbySet.Add(node))
+                    nearbyNodes.Add(node);
+            }
         }
     }
 
     bool TryRecycle(PedestrianAgent agent)
     {
-        if (!recycleToPlayers) return false;
-        if (focusTargets == null || focusTargets.Length == 0) return false;
-
-        Transform focus = focusTargets[Random.Range(0, focusTargets.Length)];
-
-        if (focus == null) return false;
-
-        graph.CollectNodesNear(focus.position, activationRadius, nearbyNodes);
-
         if (nearbyNodes.Count == 0)
         {
-            if (!warnedNoNearbyStreets)
-            {
-                warnedNoNearbyStreets = true;
-
-                Debug.LogWarning(
-                    $"[PedestriansManager] No pavement within {activationRadius} of " +
-                    $"'{focus.name}', so there is nowhere to put a pedestrian. The players start " +
-                    $"outside the procedural grid, which runs 0 to " +
-                    $"{mapManager.width * mapManager.cellSize}. Raise Activation Radius, or " +
-                    $"accept an empty street until they reach the town.", this);
-            }
-
+            WarnNoNearbyStreets();
             return false;
         }
 
         float sqrMin = recycleMinDistance * recycleMinDistance;
+        float sqrSpacing = recycleMinSpacing * recycleMinSpacing;
 
-        for (int attempt = 0; attempt < 8; attempt++)
+        for (int attempt = 0; attempt < recycleAttempts; attempt++)
         {
             int node = nearbyNodes[Random.Range(0, nearbyNodes.Count)];
             Vector3 position = graph.NodePosition(node);
 
-            if (TooCloseToAnyFocus(position, sqrMin)) continue;
+            if (TooClose(position, sqrMin, focusTargets)) continue;
+            if (TooCloseToAnyAwake(position, sqrSpacing)) continue;
+            if (IsOnCamera(position)) continue;
 
             agent.gameObject.SetActive(true);
             agent.Bind(graph, node);
@@ -347,9 +414,11 @@ public class PedestriansManager : MonoBehaviour
         return false;
     }
 
-    bool TooCloseToAnyFocus(Vector3 position, float sqrMin)
+    bool TooClose(Vector3 position, float sqrMin, Transform[] targets)
     {
-        foreach (Transform target in focusTargets)
+        if (sqrMin <= 0f || targets == null) return false;
+
+        foreach (Transform target in targets)
         {
             if (target == null) continue;
 
@@ -360,6 +429,53 @@ public class PedestriansManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool TooCloseToAnyAwake(Vector3 position, float sqrSpacing)
+    {
+        if (sqrSpacing <= 0f) return false;
+
+        for (int i = 0; i < awake.Count; i++)
+        {
+            if (awake[i] == null) continue;
+
+            Vector3 offset = awake[i].transform.position - position;
+            offset.y = 0f;
+
+            if (offset.sqrMagnitude < sqrSpacing) return true;
+        }
+
+        return false;
+    }
+
+    bool IsOnCamera(Vector3 position)
+    {
+        if (camerasThisCheck == null) return false;
+
+        Bounds bounds = new Bounds(position + Vector3.up, new Vector3(1f, 2f, 1f));
+
+        foreach (Camera view in camerasThisCheck)
+        {
+            if (view == null || !view.isActiveAndEnabled) continue;
+
+            GeometryUtility.CalculateFrustumPlanes(view, frustum);
+
+            if (GeometryUtility.TestPlanesAABB(frustum, bounds)) return true;
+        }
+
+        return false;
+    }
+
+    void WarnNoNearbyStreets()
+    {
+        if (warnedNoNearbyStreets) return;
+
+        warnedNoNearbyStreets = true;
+
+        Debug.LogWarning(
+            $"[PedestriansManager] No pavement within {activationRadius} of either player, so " +
+            $"there is nowhere to put a pedestrian. The players start outside the procedural " +
+            $"grid, which runs 0 to {mapManager.width * mapManager.cellSize}.", this);
     }
 
     float NearestFocusSqrDistance(Vector3 position)

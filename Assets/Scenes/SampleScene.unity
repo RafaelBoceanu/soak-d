@@ -26905,7 +26905,7 @@ MonoBehaviour:
   pedestrianPrefabs:
   - {fileID: 1921311228710758085, guid: d31cc71b1273b7c4aab2d9ed8999871c, type: 3}
   pedestriansParent: {fileID: 1121371646}
-  pedestrianCount: 60
+  pedestrianCount: 80
   centreDensity: 1
   edgeDensity: 0.25
   minSpacing: 8
@@ -26917,8 +26917,13 @@ MonoBehaviour:
   activationHysteresis: 8
   activationInterval: 0.25
   recycleToPlayers: 1
+  pedestriansPerNode: 0.15
   recycleMinDistance: 35
-  recyclesPerCheck: 4
+  recycleMinSpacing: 10
+  recyclesPerCheck: 2
+  recycleAttempts: 8
+  recycleOutOfSightOnly: 1
+  viewCameras: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 256
