@@ -14481,10 +14481,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHydration: 100
   maxPee: 100
-  hydrationDrainedPerRound: 0.75
-  sprintExtraDrainPerRound: 0.35
+  hydrationDrainedPerRound: 0.7
   bladderFilledPerRound: 0.15
   fallbackRoundSeconds: 180
+  idleEffort: 1
+  walkingEffort: 1.25
+  sprintingEffort: 1.9
+  ridingEffort: 1.35
   bladderPerHydration: 1
   digestionSecondsPerBar: 60
   peeDrainAtEmpty: 4
@@ -14498,6 +14501,8 @@ MonoBehaviour:
   characterType: 1
   canvasManager: {fileID: 466912801}
   playerMovement: {fileID: 0}
+  inputHandler: {fileID: 0}
+  peePuddle: {fileID: 0}
 --- !u!114 &541694508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14556,6 +14561,9 @@ MonoBehaviour:
   aspectJitter: 0.25
   sizeJitter: 0.3
   randomMirror: 1
+  accidentRadius: 2.2
+  accidentSpreadSeconds: 1.25
+  accidentGroundProbe: 3
   maxPuddles: 8
   fadeDelay: 25
   fadeDuration: 5
@@ -26849,6 +26857,75 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1004468918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &786452889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 786452890}
+  - component: {fileID: 786452891}
+  m_Layer: 0
+  m_Name: PedestriansManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &786452890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786452889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 929227071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &786452891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786452889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 742a9e1aa70639e47933503665ff933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PedestriansManager
+  mapManager: {fileID: 1697544008}
+  pedestrianPrefabs:
+  - {fileID: 1921311228710758085, guid: d31cc71b1273b7c4aab2d9ed8999871c, type: 3}
+  pedestriansParent: {fileID: 1121371646}
+  pedestrianCount: 60
+  centreDensity: 1
+  edgeDensity: 0.25
+  minSpacing: 8
+  attemptsPerPedestrian: 32
+  focusTargets:
+  - {fileID: 1552542196}
+  - {fileID: 541694498}
+  activationRadius: 70
+  activationHysteresis: 8
+  activationInterval: 0.25
+  recycleToPlayers: 1
+  recycleMinDistance: 35
+  recyclesPerCheck: 4
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  groundProbeHeight: 5
+  groundOffset: 0.02
+  drawGraphGizmos: 1
+  gizmoRange: 30
 --- !u!1 &786832177
 GameObject:
   m_ObjectHideFlags: 0
@@ -27956,6 +28033,7 @@ Transform:
   - {fileID: 965349794}
   - {fileID: 506492572}
   - {fileID: 321607984}
+  - {fileID: 786452890}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &932146329
@@ -35100,6 +35178,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 482840, guid: 052d9e2fb5dbfda48a537e0e649e3325, type: 3}
   m_PrefabInstance: {fileID: 1767934300}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1121371645
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121371646}
+  m_Layer: 0
+  m_Name: Pedestrians
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1121371646
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121371645}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1122455550
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45037,10 +45146,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHydration: 100
   maxPee: 100
-  hydrationDrainedPerRound: 0.75
-  sprintExtraDrainPerRound: 0.35
+  hydrationDrainedPerRound: 0.7
   bladderFilledPerRound: 0.15
   fallbackRoundSeconds: 180
+  idleEffort: 1
+  walkingEffort: 1.25
+  sprintingEffort: 1.9
+  ridingEffort: 1.35
   bladderPerHydration: 1
   digestionSecondsPerBar: 60
   peeDrainAtEmpty: 4
@@ -45054,6 +45166,8 @@ MonoBehaviour:
   characterType: 0
   canvasManager: {fileID: 466912801}
   playerMovement: {fileID: 0}
+  inputHandler: {fileID: 0}
+  peePuddle: {fileID: 0}
 --- !u!114 &1552542206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45112,6 +45226,9 @@ MonoBehaviour:
   aspectJitter: 0.25
   sizeJitter: 0.3
   randomMirror: 1
+  accidentRadius: 2.2
+  accidentSpreadSeconds: 1.25
+  accidentGroundProbe: 3
   maxPuddles: 8
   fadeDelay: 25
   fadeDuration: 5
@@ -85682,6 +85799,7 @@ SceneRoots:
   - {fileID: 1257811241}
   - {fileID: 1896820609}
   - {fileID: 1706269643}
+  - {fileID: 1121371646}
   - {fileID: 346968293}
   - {fileID: 1741946379}
   - {fileID: 1733753898}

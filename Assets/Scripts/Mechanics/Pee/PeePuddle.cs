@@ -156,7 +156,7 @@ public class PeePuddle : MonoBehaviour
             return;
         }
 
-        Vector3 origin = worldPosition + Vector3.up * 0.05f;
+        Vector3 origin = worldPosition + Vector3.up * 0.5f;
 
         if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, accidentGroundProbe + 0.5f, groundMask, QueryTriggerInteraction.Ignore))
         {

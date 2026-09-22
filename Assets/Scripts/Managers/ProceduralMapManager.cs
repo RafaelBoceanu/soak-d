@@ -514,7 +514,7 @@ public class ProceduralMapManager : MonoBehaviour
         return !IsRoad(cell + side) && !IsRoad(cell - side);
     }
 
-    bool IsRoad(Vector2Int cell)
+    public bool IsRoad(Vector2Int cell)
     {
         return IsInsideGrid(cell) && grid[cell.x, cell.y] == 1;
     }
@@ -759,6 +759,17 @@ public class ProceduralMapManager : MonoBehaviour
     public IReadOnlyList<Transform> GetSpawnedHouses()
     {
         return spawnedHouses;
+    }
+
+    [Header("Pavements")]
+    public float LaneOffset => 0.42f * cellSize;
+    public float LaneWidth => 0.20f * cellSize;
+
+    public float PavementTopY => groundY + roadSurfaceLift + roadThickness * 0.25f;
+
+    public Vector3 CellCentre(Vector2Int cell)
+    {
+        return new Vector3(cell.x * cellSize, PavementTopY, cell.y * cellSize);
     }
 
     public List<Vector2Int> GetRoadCells()
