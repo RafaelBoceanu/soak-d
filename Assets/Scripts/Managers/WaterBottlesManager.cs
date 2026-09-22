@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WaterBottlesManager : MonoBehaviour
@@ -185,7 +186,7 @@ public class WaterBottlesManager : MonoBehaviour
         {
             grounded = new Vector3(
                 guess.x, 
-                mapManager.groundY + groundOffset, 
+                mapManager.groundY + fallbackSurfaceHeight + groundOffset, 
                 guess.z);
             return true;
         }
@@ -307,16 +308,33 @@ public class WaterBottlesManager : MonoBehaviour
 
     void StandOnSurface(GameObject bottle, float baseHeight)
     {
-        Renderer[] renderers = bottle.GetComponentsInChildren<Renderer>();
+        if (!TryMeasureModel(bottle, out Bounds bounds))
+        {
+            Debug.LogWarning(
+                $"[WaterBottlesManager] {bottle.name} has no mesh to measure, so it was left " +
+                $"where it was dropped instead of being stood on the ground.", bottle);
 
-        if (renderers.Length == 0) return;
-
-        Bounds bounds = renderers[0].bounds;
-
-        for (int i = 1; i < renderers.Length; i++)
-            bounds.Encapsulate(renderers[i].bounds);
+            return;
+        }
 
         bottle.transform.position += Vector3.up * (baseHeight - bounds.min.y);
+    }
+
+    static bool TryMeasureModel(GameObject bottle, out Bounds bounds)
+    {
+        bounds = new Bounds();
+
+        bool measured = false;
+
+        foreach (Renderer renderer in bottle.GetComponentsInChildren<Renderer>())
+        {
+            if (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer)) continue;
+
+            if (measured) bounds.Encapsulate(renderer.bounds);
+            else { bounds = renderer.bounds; measured = true; }
+        }
+
+        return measured;
     }
 
     void HandleBottlePickedUp(InventoryPickup bottle, OwnerType collector)
