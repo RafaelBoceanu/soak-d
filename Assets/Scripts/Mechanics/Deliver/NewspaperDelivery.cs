@@ -33,6 +33,7 @@ public class NewspaperDelivery : MonoBehaviour
     Coroutine hideDestroyedRoutine;
 
     static readonly List<NewspaperDelivery> all = new List<NewspaperDelivery>();
+    public static IReadOnlyList<NewspaperDelivery> All => all;
 
     static int deliveryCounter;
 

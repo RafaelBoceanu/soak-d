@@ -49,6 +49,9 @@ public class MatchManager : MonoBehaviour
     [Tooltip("Hold the clock until the procedural map has registered its delivery zones")]
     [SerializeField] private bool waitForZones = true;
 
+    [Tooltip("Hold the clock until the players have been placed in the scene.")]
+    [SerializeField] private PlayerStartManager playerStart;
+
     [Tooltip("Start anyway if no zone has registered after this long.")]
     [SerializeField, Min(0f)] private float warmupTimeout = 10f;
 
@@ -131,6 +134,17 @@ public class MatchManager : MonoBehaviour
 
             if (TotalZones() == 0)
                 Debug.LogWarning("[MatchManager] No delivery zones registered; starting the round anyway", this);
+        }
+
+        if (playerStart != null)
+        {
+            float startWait = 0f;
+
+            while (!PlayerStartManager.HasStarted && startWait < warmupTimeout)
+            {
+                startWait += Time.unscaledDeltaTime;
+                yield return null;
+            }
         }
 
         phase = MatchPhase.Running;

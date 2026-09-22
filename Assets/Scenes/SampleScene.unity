@@ -11766,6 +11766,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1752151172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &290393131
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 290393132}
+  - component: {fileID: 290393133}
+  m_Layer: 0
+  m_Name: StartManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &290393132
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290393131}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 929227071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &290393133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290393131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d6fc0df607dce9419928fed37a768de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStartManager
+  mapManager: {fileID: 1697544008}
+  playersOverride: []
+  vehiclesOverride: []
+  waitForZones: 1
+  zoneWaitTimeout: 10
+  fairnessWeight: 3
+  closenessWeight: 1
+  junctionBonus: 20
+  spotsToTry: 40
+  playerSpacing: 3
+  vehicleParkingOffset: {x: 0, y: 2.5}
+  vehicleSpacing: 2
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  groundProbeHeight: 6
+  fallbackVehicleLift: 0.25
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  clearanceRadius: 0.6
+  logStart: 1
+  drawStartGizmo: 1
 --- !u!1 &292873023
 GameObject:
   m_ObjectHideFlags: 0
@@ -11998,6 +12065,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MatchManager
   roundSeconds: 180
   waitForZones: 1
+  playerStart: {fileID: 290393133}
   warmupTimeout: 10
   endOnAllDelivered: 1
   onBladderFull: 1
@@ -26923,7 +26991,9 @@ MonoBehaviour:
   recyclesPerCheck: 2
   recycleAttempts: 8
   recycleOutOfSightOnly: 1
-  viewCameras: []
+  viewCameras:
+  - {fileID: 1839225299}
+  - {fileID: 391078722}
   groundLayers:
     serializedVersion: 2
     m_Bits: 256
@@ -28039,6 +28109,7 @@ Transform:
   - {fileID: 506492572}
   - {fileID: 321607984}
   - {fileID: 786452890}
+  - {fileID: 290393132}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &932146329
@@ -85733,7 +85804,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.067637, y: 0.4765337, z: 1}
+  m_Size: {x: 2.2, y: 1.6, z: 2.4}
   m_Center: {x: 0.0018737316, y: 0.22046092, z: 0}
 --- !u!114 &9192457632094920628
 MonoBehaviour:

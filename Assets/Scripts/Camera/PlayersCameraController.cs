@@ -196,6 +196,27 @@ public class PlayersCameraController : MonoBehaviour
             lookPoint = newTarget.position;
     }
 
+    public void SnapToTarget()
+    {
+        if (followTarget == null) return;
+
+        rotationY = followTarget.eulerAngles.y;
+
+        Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0f);
+
+        pivot = FramedTarget(rotation);
+        lookPoint = pivot;
+        currentVelocity = Vector2.zero;
+        lookVelocity = Vector2.zero;
+
+        transform.position = pivot + rotation * new Vector3(0f, 0f, -distanceToTarget);
+
+        Vector3 toTarget = pivot - transform.position;
+
+        if (toTarget.sqrMagnitude > 0.0001f)
+            transform.rotation = Quaternion.LookRotation(toTarget);
+    }
+
     public void SetOffset(float newDistance, Vector2 newFramingOffset)
     {
         distanceToTarget = newDistance;

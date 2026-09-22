@@ -71,6 +71,8 @@ public class MountableVehicle : MonoBehaviour
         return currentPlayerInput == player;
     }
 
+    public string AllowedTag => allowedTag;
+
     public bool CanDismount(PlayerInputHandler player)
     {
         if (!isOccupied || currentPlayerInput != player) return false;
