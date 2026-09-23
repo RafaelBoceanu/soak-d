@@ -67,6 +67,7 @@ public class PeePuddle : MonoBehaviour
         public float AspectY;
         public float Age;
         public bool Finished;
+        public float Flow;
     }
 
     private static readonly int BaseMapId = Shader.PropertyToID("Base_Map");
@@ -91,6 +92,50 @@ public class PeePuddle : MonoBehaviour
         }
 
         return false;
+    }
+
+    public static bool TryGetSoakingFlow(Vector3 worldPosition, float reach, out float flow)
+    {
+        flow = 0f;
+        bool found = false;
+
+        for (int i = 0; i < instances.Count; i++)
+        {
+            if (instances[i].TryGetActiveFlow(worldPosition, reach, out float f))
+            {
+                found = true;
+                flow = Mathf.Max(flow, f);
+            }
+        }
+
+        return found;
+    }
+
+    private bool TryGetActiveFlow(Vector3 worldPosition, float reach, out float flow)
+    {
+        flow = 0f;
+        bool found = false;
+
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            Puddle puddle = puddles[i];
+
+            if (puddle.Finished || puddle.Projector == null)
+                continue;
+
+            Vector3 gap = puddle.Projector.transform.position - worldPosition;
+            gap.y = 0f;
+
+            float r = puddle.Radius + reach;
+
+            if (gap.sqrMagnitude <= r * r)
+            {
+                found = true;
+                flow = Mathf.Max(flow, puddle.Flow);
+            }
+        }
+
+        return found;
     }
 
     private bool IsInside(Vector3 worldPosition)
@@ -144,6 +189,7 @@ public class PeePuddle : MonoBehaviour
 
         current.Radius = Mathf.Min(current.Radius + growthPerSecond * Mathf.Max(flow, 0.15f) * Time.deltaTime, current.MaxRadius);
         current.Age = 0f;
+        current.Flow = flow;
         ApplySize(current);
     }
 
@@ -168,6 +214,8 @@ public class PeePuddle : MonoBehaviour
         Puddle puddle = CreatePuddle(hit);
 
         puddle.MaxRadius = Mathf.Max(accidentRadius, startRadius);
+
+        puddle.Flow = 1f;
 
         StartCoroutine(SpreadAccident(puddle));
     }

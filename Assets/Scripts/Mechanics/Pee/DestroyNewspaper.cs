@@ -11,7 +11,11 @@ public class DestroyNewspaper : MonoBehaviour
     [Tooltip("Share of the soak a paper sheds per second once the stream moves off it.")]
     [SerializeField, Min(0f)] private float dryingPerSecond = 0.5f;
 
+    [Tooltip("Extra meters around a live puddle that still count as soaking the paper.")]
+    [SerializeField, Min(0f)] private float puddleReach = 0.1f;
+
     NewspaperDelivery delivery;
+    Collider paperCollider;
 
     float soak;
     int lastSoakedFrame = -2;
@@ -20,6 +24,13 @@ public class DestroyNewspaper : MonoBehaviour
     PeeSystem lastSourceSystem;
 
     public float SoakProgress => soakSecondsToRuin <= 0f ? 0f : Mathf.Clamp01(soak / soakSecondsToRuin);
+
+    void Awake()
+    {
+        paperCollider = GetComponent<Collider>();
+    }
+
+    Vector3 SoakPoint => paperCollider != null ? paperCollider.bounds.center : transform.position;
 
     public void Bind(NewspaperDelivery owner)
     {
@@ -33,6 +44,13 @@ public class DestroyNewspaper : MonoBehaviour
 
     void Update()
     {
+        if (delivery != null && delivery.wasDelivered &&
+            PeePuddle.TryGetSoakingFlow(SoakPoint, puddleReach, out float puddleFlow))
+        {
+            Soak(Mathf.Max(puddleFlow, weakestUsefulStream));
+            return;
+        }
+
         if (soak <= 0f || Time.frameCount - lastSoakedFrame <= 1)
             return;
 
@@ -61,11 +79,19 @@ public class DestroyNewspaper : MonoBehaviour
         if (delivery == null || !delivery.wasDelivered)
             return;
 
+        Soak(StreamStrength(other));
+    }
+
+    void Soak(float strength)
+    {
+        if (lastSoakedFrame == Time.frameCount)
+            return;
+
         lastSoakedFrame = Time.frameCount;
 
         if (soakSecondsToRuin > 0f)
         {
-            soak += Time.deltaTime * StreamStrength(other);
+            soak += Time.deltaTime * strength;
 
             if (soak < soakSecondsToRuin)
                 return;
