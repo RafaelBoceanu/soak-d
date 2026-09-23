@@ -20,6 +20,12 @@ public class PlayerMovement : MonoBehaviour
              "and keeps facing its movement direction while walking.")]
     [SerializeField] private bool faceAimWhileMoving = true;
 
+    [Header("Pee Stance")]
+    [Tooltip("Walk speed while the zipper is open. Can root the character but still lets it turn on the spot.")]
+    [SerializeField, Min(0f)] private float peeMoveSpeed = 0f;
+    [Tooltip("How fast the character turns to face the camera while the zipper is open.")]
+    [SerializeField] private float peeTurnSpeed = 14f;
+
     [Header("Animation Settings")]
     [SerializeField] private float animSmoothTime = 0.1f;
 
@@ -41,6 +47,7 @@ public class PlayerMovement : MonoBehaviour
     public bool IsAiming => isAiming;
     private bool isMoving = false;
     private bool movementLocked = false;
+    private bool peeStance = false;
     private bool stunned = false;
 
     [Header("Puddle splash")]
@@ -51,10 +58,11 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsMoving => isMoving;
     public bool IsStunned => stunned;
+    public bool IsPeeStance => peeStance;
 
     private bool SprintAllowed => playerNeeds == null || playerNeeds.CanSprint;
 
-    public bool CanPee => isActiveAndEnabled && !isMoving && !stunned;
+    public bool CanPee => isActiveAndEnabled && !stunned && !movementLocked;
 
     private void Awake()
     {
@@ -72,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
     {
         isAiming = false;
         isMoving = false;
+        peeStance = false;
     }
 
     private void Update()
@@ -108,9 +117,17 @@ public class PlayerMovement : MonoBehaviour
             move = Vector3.zero;
         }
 
+        if (peeStance && peeMoveSpeed <= 0f)
+        {
+            move = Vector3.zero;
+        }
+
         isMoving = move.magnitude >= MoveDeadzone;
 
-        float targetSpeed = isSprinting && SprintAllowed ? sprintSpeed : speed;
+        float targetSpeed = peeStance
+            ? peeMoveSpeed
+            : (isSprinting && SprintAllowed ? sprintSpeed : speed);
+
         float targetAnimSpeed = move.magnitude * targetSpeed;
 
         //Smooth animation
@@ -147,7 +164,11 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(verticalMove * Time.deltaTime);
         }
 
-        if (isAiming && (faceAimWhileMoving || !isMoving))
+        if (peeStance)
+        {
+            FaceDirection(camForward, peeTurnSpeed);
+        }
+        else if (isAiming && (faceAimWhileMoving || !isMoving))
         {
             FaceDirection(camForward, aimRotationSpeed);
         }
@@ -212,6 +233,11 @@ public class PlayerMovement : MonoBehaviour
         {
             isMoving = false;
         }
+    }
+
+    public void SetPeeStance(bool value)
+    {
+        peeStance = value;
     }
 
     public void SetStunned(bool value)

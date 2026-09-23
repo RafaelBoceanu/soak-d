@@ -13,9 +13,28 @@ public class PeeSystem : MonoBehaviour
     [Tooltip("Share of the bar below which the stream gives out.")]
     [SerializeField, Range(0f, 1f)] private float minPeeValue = 0.01f;
 
+    [Header("Aiming")]
+    [Tooltip("Camera rig this player aims with. If empty, it is taken from the PlayerInputHandler.")]
+    [SerializeField] private PlayersCameraController cameraRig;
+
+    [Tooltip("Stream angle when the camera is looking as far up as it goes. If negative, points the arc upwards.")]
+    [SerializeField] private float minPitch = -10f;
+
+    [Tooltip("Stream angle when the camera is looking as far down as it goes. 90 deg is straigh at character's feet")]
+    [SerializeField] private float maxPitch = 70f;
+
+    [Tooltip("How quickly the stream swings to the aimed angle.")]
+    [SerializeField] private float aimSharpness = 12f;
+
+    [Tooltip("World ring showing where the stream will land.")]
+    [SerializeField] private PeeAimRing aimRing;
+
     private bool isPeeing = false;
     private bool zipperClosed = true;
     private float currentFlow;
+    private float currentPitch;
+    private Quaternion spawnRestRotation;
+    private bool aimApplied;
 
     private PlayerInputHandler inputHandler;
     private PlayerMovement playerMovement;
@@ -38,6 +57,7 @@ public class PeeSystem : MonoBehaviour
     private PlayerInputContext Controls => TwoPlayerInputManager.GetPlayer(owner);
 
     public float CurrentFlow => isPeeing ? currentFlow : 0f;
+    public bool IsZipperOpen => !zipperClosed;
 
     void Awake()
     {
@@ -64,6 +84,8 @@ public class PeeSystem : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        spawnRestRotation = spawnPoint.localRotation;
+        currentPitch = AimPitch();
         GameObject instance = Instantiate(peePrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
         peeParticleSystem = instance.GetComponent<ParticleSystem>();
 
@@ -159,6 +181,88 @@ public class PeeSystem : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        if (spawnPoint == null)
+            return;
+
+        if (zipperClosed)
+        {
+            if (aimApplied)
+            {
+                spawnPoint.localRotation = spawnRestRotation;
+                aimApplied = false;
+            }
+
+            UpdateAimMarker();
+            return;
+        }
+
+        currentPitch = Mathf.Lerp(currentPitch, AimPitch(),
+                                  1f - Mathf.Exp(-aimSharpness * Time.deltaTime));
+
+        spawnPoint.rotation = Quaternion.Euler(currentPitch, transform.eulerAngles.y, 0f);
+        aimApplied = true;
+
+        UpdateAimMarker();
+    }
+
+    private PlayersCameraController Rig
+    {
+        get
+        {
+            if (cameraRig == null)
+                cameraRig = inputHandler != null
+                    ? inputHandler.CameraController
+                    : PlayersCameraController.ForOwner(owner);
+
+            return cameraRig;
+        }
+    }
+
+    private float AimPitch()
+    {
+        PlayersCameraController rig = Rig;
+
+        if (rig == null)
+            return Mathf.Lerp(minPitch, maxPitch, 0.5f);
+
+        float t = Mathf.InverseLerp(rig.MinPitch, rig.MaxPitch, rig.Pitch);
+
+        return Mathf.Lerp(minPitch, maxPitch, t);
+    }
+
+    private float PredictedFlow()
+    {
+        if (isPeeing)
+            return currentFlow;
+
+        if (playerNeeds == null || playerNeeds.maxPee <= 0f)
+            return 0f;
+
+        return (playerNeeds.pee / playerNeeds.maxPee) * playerNeeds.FlowScale;
+    }
+
+    private void UpdateAimMarker()
+    {
+        if (aimRing == null)
+            return;
+
+        float flow = PredictedFlow();
+
+        if (zipperClosed || peePuddle == null ||
+            !peePuddle.TryPredictLanding(flow, out RaycastHit hit))
+        {
+            aimRing.Hide();
+            return;
+        }
+
+        PlayersCameraController rig = Rig;
+        Vector3 viewer = rig != null ? rig.transform.position : transform.position;
+
+        aimRing.Place(hit.point, hit.normal, flow, viewer, isPeeing);
+    }
+
     void StartPeeing()
     {
 
@@ -198,26 +302,34 @@ public class PeeSystem : MonoBehaviour
             zipperOpenSound.Play();
 
         if (playerMovement != null)
-            playerMovement.SetMovementLocked(true);
+            playerMovement.SetPeeStance(true);
+
+        currentPitch = AimPitch();
+
+        PlayersCameraController rig = Rig;
+        if (rig != null)
+            rig.SetPeeView(true);
 
         if (animator != null)
             animator.SetBool("isPeeing", true);
 
         UpdateCensor();
-
-        Debug.Log($"{owner} zipper closed: {zipperClosed}");
     }
 
     private void CloseZipper(bool playSound)
     {
         StopPeeing();
 
-        if (playerMovement != null)
-            playerMovement.SetMovementLocked(false);
-
         if (zipperClosed) return;
 
         zipperClosed = true;
+
+        if (playerMovement != null)
+            playerMovement.SetPeeStance(false);
+
+        PlayersCameraController rig = Rig;
+        if (rig != null)
+            rig.SetPeeView(false);
 
         if (playSound && zipperCloseSound != null)
             zipperCloseSound.Play();
@@ -226,8 +338,6 @@ public class PeeSystem : MonoBehaviour
             animator.SetBool("isPeeing", false);
 
         UpdateCensor();
-
-        Debug.Log($"{owner} zipper closed: {zipperClosed}");
     }
 
     void UpdateVisuals(float normalized)

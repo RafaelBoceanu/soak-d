@@ -69,7 +69,7 @@ public class PeePuddle : MonoBehaviour
         public bool Finished;
     }
 
-    private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
+    private static readonly int BaseMapId = Shader.PropertyToID("Base_Map");
     private readonly List<Puddle> puddles = new List<Puddle>();
     private Puddle current;
     private bool warnedAboutSetup;
@@ -204,6 +204,8 @@ public class PeePuddle : MonoBehaviour
             current = null;
         }
     }
+
+    public bool TryPredictLanding(float flow, out RaycastHit hit) => TraceLandingPoint(flow, out hit);
 
     private bool TraceLandingPoint(float flow, out RaycastHit hit)
     {

@@ -13047,6 +13047,12 @@ MonoBehaviour:
   minVerticalAngle: -20
   maxVerticalAngle: 45
   framingOffset: {x: 0.35, y: 0.7}
+  peeDistance: 3.2
+  peeFramingOffset: {x: 0.85, y: 0.15}
+  peeMaxPitch: 65
+  peeLookAhead: 1.5
+  peeEntryPitch: 32
+  viewBlendSpeed: 4
   mouseSensitivity: 0.05
   gamepadSensitivity: 160
   verticalSensitivityScale: 0.75
@@ -14303,6 +14309,8 @@ MonoBehaviour:
   rotationSpeed: 10
   aimRotationSpeed: 20
   faceAimWhileMoving: 1
+  peeMoveSpeed: 0
+  peeTurnSpeed: 14
   animSmoothTime: 0.1
   gravity: -9.81
   groundedOffset: -2
@@ -14526,6 +14534,11 @@ MonoBehaviour:
   owner: 1
   peeThreshold: 0.05
   minPeeValue: 0.01
+  cameraRig: {fileID: 0}
+  minPitch: 40
+  maxPitch: 85
+  aimSharpness: 12
+  aimRing: {fileID: 7379542793611992673}
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
   spawnPoint: {fileID: 1329764725}
   zipperOpenSound: {fileID: 1338218345}
@@ -14533,7 +14546,7 @@ MonoBehaviour:
   peeSound: {fileID: 1785663885}
   playerNeeds: {fileID: 541694507}
   zipperCensor: {fileID: 541694508}
-  peePuddle: {fileID: 0}
+  peePuddle: {fileID: 541694509}
   animator: {fileID: 0}
 --- !u!114 &541694507
 MonoBehaviour:
@@ -14607,7 +14620,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 1329764725}
   groundMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 768
   minSpeed: 3
   maxSpeed: 9
   minGravity: 3
@@ -29326,6 +29339,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8583628538170910041}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 180}
+--- !u!114 &1017861175 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5163615745059033311, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+  m_PrefabInstance: {fileID: 274152821974876477}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e501ae26cf8946249a871ab77d13d80d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PeeAimRing
 --- !u!1 &1020577201
 GameObject:
   m_ObjectHideFlags: 0
@@ -44976,6 +45000,8 @@ MonoBehaviour:
   rotationSpeed: 10
   aimRotationSpeed: 20
   faceAimWhileMoving: 1
+  peeMoveSpeed: 0.8
+  peeTurnSpeed: 14
   animSmoothTime: 0.1
   gravity: -9.81
   groundedOffset: -2
@@ -45199,6 +45225,11 @@ MonoBehaviour:
   owner: 0
   peeThreshold: 0.05
   minPeeValue: 0.01
+  cameraRig: {fileID: 0}
+  minPitch: -10
+  maxPitch: 70
+  aimSharpness: 12
+  aimRing: {fileID: 1017861175}
   peePrefab: {fileID: 1510994907184971449, guid: 6add260147eaced4cb36f17e2d5e13fe, type: 3}
   spawnPoint: {fileID: 1046671228}
   zipperOpenSound: {fileID: 1338218345}
@@ -45206,7 +45237,7 @@ MonoBehaviour:
   peeSound: {fileID: 1785663885}
   playerNeeds: {fileID: 1552542205}
   zipperCensor: {fileID: 1552542206}
-  peePuddle: {fileID: 0}
+  peePuddle: {fileID: 1552542207}
   animator: {fileID: 0}
 --- !u!114 &1552542205
 MonoBehaviour:
@@ -45280,7 +45311,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 1046671228}
   groundMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 768
   minSpeed: 3
   maxSpeed: 9
   minGravity: 3
@@ -64050,6 +64081,12 @@ MonoBehaviour:
   minVerticalAngle: -20
   maxVerticalAngle: 45
   framingOffset: {x: 0.35, y: 0.7}
+  peeDistance: 4.2
+  peeFramingOffset: {x: 0.4, y: 0.6}
+  peeMaxPitch: 65
+  peeLookAhead: 2.2
+  peeEntryPitch: 40
+  viewBlendSpeed: 4
   mouseSensitivity: 0.05
   gamepadSensitivity: 160
   verticalSensitivityScale: 0.75
@@ -73001,6 +73038,63 @@ Transform:
   - {fileID: 7340337296125249871}
   m_Father: {fileID: 5945768786510107309}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &266343894431763357
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8299947429925278163, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_Name
+      value: PeeAimRing_Witch
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488796780277158261, guid: 666358034f4a016438c82a7120257499, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 666358034f4a016438c82a7120257499, type: 3}
 --- !u!1 &266975155914852578
 GameObject:
   m_ObjectHideFlags: 0
@@ -73033,6 +73127,63 @@ Transform:
   - {fileID: 7255133248641485585}
   m_Father: {fileID: 5935167621745820008}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &274152821974876477
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2080890325308350023, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_Name
+      value: PeeAimRing_Boy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343890525936109046, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7c38c10c09ed4844083f514a1bddaf6c, type: 3}
 --- !u!4 &276745796693436948
 Transform:
   m_ObjectHideFlags: 0
@@ -83240,6 +83391,17 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7379542793611992673 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4446992511350302490, guid: 666358034f4a016438c82a7120257499, type: 3}
+  m_PrefabInstance: {fileID: 266343894431763357}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e501ae26cf8946249a871ab77d13d80d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PeeAimRing
 --- !u!4 &7390840391921330007
 Transform:
   m_ObjectHideFlags: 0
@@ -85883,3 +86045,5 @@ SceneRoots:
   - {fileID: 995606564}
   - {fileID: 1155414117}
   - {fileID: 224627452}
+  - {fileID: 274152821974876477}
+  - {fileID: 266343894431763357}

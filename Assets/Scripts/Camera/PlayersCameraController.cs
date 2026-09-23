@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayersCameraController : MonoBehaviour
@@ -12,6 +13,20 @@ public class PlayersCameraController : MonoBehaviour
     [SerializeField] float minVerticalAngle = -20f;
     [SerializeField] float maxVerticalAngle = 60f;
     [SerializeField] Vector2 framingOffset = new Vector2(0, 1f);
+
+    [Header("Pee Framing")]
+    [Tooltip("Camera distance while the zipper is open.")]
+    [SerializeField] float peeDistance = 3.2f;
+    [Tooltip("Framing while the zipper is open")]
+    [SerializeField] Vector2 peeFramingOffset = new Vector2(0.85f, 0.15f);
+    [Tooltip("How far down the camera may look while the zipper is open")]
+    [SerializeField] float peeMaxPitch = 65f;
+    [Tooltip("How far in front of the character the camera looks while the zipper is open.")]
+    [SerializeField] float peeLookAhead = 1.5f;
+    [Tooltip("The camera is pushed at least this far down when the zipper is open.")]
+    [SerializeField] float peeEntryPitch = 32f;
+    [Tooltip("How fast the view slides between the normal and the peeing frame")]
+    [SerializeField] float viewBlendSpeed = 4f;
 
     [Header("Look Sensitivity")]
     [Tooltip("Degrees per pixel of mouse movement.")]
@@ -30,8 +45,14 @@ public class PlayersCameraController : MonoBehaviour
 
     float rotationX = 20f;
     float rotationY;
+    float defaultMaxPitch;
+    float viewDistance;
+    Vector2 viewFraming;
+    float viewLookAhead;
+    bool peeView;
     Vector3 currentVelocity;
     Vector3 desiredPosition;
+    
 
     Vector3 lookPoint;
     Vector3 lookVelocity;
@@ -64,6 +85,9 @@ public class PlayersCameraController : MonoBehaviour
         new Dictionary<OwnerType, PlayersCameraController>();
 
     public OwnerType Owner => owner;
+    public float Pitch => rotationX;
+    public float MinPitch => minVerticalAngle;
+    public float MaxPitch => maxVerticalAngle;
 
     public static PlayersCameraController ForOwner(OwnerType owner) =>
         rigs.TryGetValue(owner, out PlayersCameraController rig) ? rig : null;
@@ -77,6 +101,9 @@ public class PlayersCameraController : MonoBehaviour
     void Awake()
     {
         rigs[owner] = this;
+        defaultMaxPitch = maxVerticalAngle;
+        viewDistance = distanceToTarget;
+        viewFraming = framingOffset;
 
         cam = GetComponent<Camera>();
         if (cam == null) 
@@ -118,6 +145,7 @@ public class PlayersCameraController : MonoBehaviour
     {
         if (followTarget == null) return;
 
+        BlendView();
         ApplyLook();
 
         Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0);
@@ -125,7 +153,7 @@ public class PlayersCameraController : MonoBehaviour
 
         pivot = Vector3.SmoothDamp(pivot, framedTarget, ref currentVelocity, smoothTime);
 
-        desiredPosition = pivot + rotation * new Vector3(0, 0, -distanceToTarget);
+        desiredPosition = pivot + rotation * new Vector3(0, 0, -viewDistance);
 
         transform.position = collisionProbe.Resolve(
             pivot,
@@ -156,9 +184,13 @@ public class PlayersCameraController : MonoBehaviour
 
     private Vector3 FramedTarget(Quaternion rotation)
     {
+
+        Vector3 flatForward = Quaternion.Euler(0f, rotationY, 0f) * Vector3.forward;
+
         return followTarget.position
-            + Vector3.up * framingOffset.y
-            + rotation * Vector3.right * framingOffset.x;
+            + Vector3.up * viewFraming.y
+            + rotation * Vector3.right * viewFraming.x
+            + flatForward * viewLookAhead;
     }
 
     private Transform ResolveOwnerRoot()
@@ -198,6 +230,10 @@ public class PlayersCameraController : MonoBehaviour
 
     public void SnapToTarget()
     {
+        viewDistance = peeView ? peeDistance : distanceToTarget;
+        viewFraming = peeView ? peeFramingOffset : framingOffset;
+        viewLookAhead = peeView ? peeLookAhead : 0f;
+
         if (followTarget == null) return;
 
         rotationY = followTarget.eulerAngles.y;
@@ -209,7 +245,7 @@ public class PlayersCameraController : MonoBehaviour
         currentVelocity = Vector2.zero;
         lookVelocity = Vector2.zero;
 
-        transform.position = pivot + rotation * new Vector3(0f, 0f, -distanceToTarget);
+        transform.position = pivot + rotation * new Vector3(0f, 0f, -viewDistance);
 
         Vector3 toTarget = pivot - transform.position;
 
@@ -221,6 +257,31 @@ public class PlayersCameraController : MonoBehaviour
     {
         distanceToTarget = newDistance;
         framingOffset = newFramingOffset;
+    }
+
+    public void SetPeeView(bool value)
+    {
+        if (peeView == value) return;
+
+        peeView = value;
+
+        maxVerticalAngle = value ? peeMaxPitch : defaultMaxPitch;
+
+        if (value)
+            rotationX = Mathf.Max(rotationX, peeEntryPitch);
+
+        rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
+    }
+
+    void BlendView()
+    {
+        float targetDistance = peeView ? peeDistance : distanceToTarget;
+        Vector2 targetFraming = peeView ? peeFramingOffset : framingOffset;
+        float t = 1f - Mathf.Exp(-viewBlendSpeed * Time.deltaTime);
+
+        viewDistance = Mathf.Lerp(viewDistance, targetDistance, t);
+        viewFraming = Vector2.Lerp(viewFraming, targetFraming, t);
+        viewLookAhead = Mathf.Lerp(viewLookAhead, peeView ? peeLookAhead : 0f, t);
     }
 
     #region FOV and shake
