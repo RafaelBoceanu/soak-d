@@ -5329,6 +5329,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &49128308
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 49128309}
+  m_Layer: 0
+  m_Name: Cars
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &49128309
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 49128308}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &67566913
 GameObject:
   m_ObjectHideFlags: 0
@@ -13057,6 +13088,8 @@ MonoBehaviour:
   gamepadSensitivity: 160
   verticalSensitivityScale: 0.75
   invertVertical: 0
+  headingFollowSpeed: 2.5
+  headingFollowDelay: 0.75
   smoothTime: 0.15
   collisionProbe: {fileID: 391078724}
   lookSmoothTime: 0.05
@@ -27629,6 +27662,68 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.11140505, y: 0.067479745, z: 0.00003256183}
     m_Extent: {x: 0.044130795, y: 0.008435622, z: 0.008149588}
   m_DirtyAABB: 0
+--- !u!1 &847822654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 847822655}
+  - component: {fileID: 847822656}
+  m_Layer: 0
+  m_Name: TrafficManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &847822655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847822654}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 929227071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &847822656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847822654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0090fb1fa916535449c519dfc56ee216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrafficManager
+  mapManager: {fileID: 1697544008}
+  carPrefabs:
+  - {fileID: 3652431263022970526, guid: fe9268bbfbff3ed4998074b008ba9f0e, type: 3}
+  carsParent: {fileID: 49128309}
+  carCount: 25
+  minSpawnSpacing: 20
+  straightOnWeight: 2
+  driveOnLeft: 0
+  laneOffset: 0.16
+  curveSamples: 8
+  trafficLightPrefab: {fileID: 8063020188112952579, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+  lightsParent: {fileID: 1204128537}
+  crossroadsLightChance: 0.6
+  tJunctionLightChance: 0.25
+  greenSeconds: 10
+  amberSeconds: 2.5
+  allRedSeconds: 1.5
+  poleCornerOffset: 0.35
 --- !u!1 &848223487
 GameObject:
   m_ObjectHideFlags: 0
@@ -28123,6 +28218,7 @@ Transform:
   - {fileID: 321607984}
   - {fileID: 786452890}
   - {fileID: 290393132}
+  - {fileID: 847822655}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &932146329
@@ -36424,6 +36520,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1204128536
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1204128537}
+  m_Layer: 0
+  m_Name: TrafficLights
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1204128537
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1204128536}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1222221333
 GameObject:
   m_ObjectHideFlags: 0
@@ -64104,6 +64231,8 @@ MonoBehaviour:
   gamepadSensitivity: 160
   verticalSensitivityScale: 0.75
   invertVertical: 0
+  headingFollowSpeed: 2.5
+  headingFollowDelay: 0.75
   smoothTime: 0.15
   collisionProbe: {fileID: 1839225301}
   lookSmoothTime: 0.05
@@ -80510,6 +80639,63 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1001 &5229098663424738573
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8063020188112952579, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_Name
+      value: TrafficLight
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.6303
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.69699
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8284551736954773014, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5f20927afa8b26646a06a26d1162ce7d, type: 3}
 --- !u!1 &5229902582948963113
 GameObject:
   m_ObjectHideFlags: 0
@@ -86050,6 +86236,8 @@ SceneRoots:
   - {fileID: 1257811241}
   - {fileID: 1896820609}
   - {fileID: 1706269643}
+  - {fileID: 49128309}
+  - {fileID: 1204128537}
   - {fileID: 1121371646}
   - {fileID: 346968293}
   - {fileID: 1741946379}
@@ -86060,3 +86248,4 @@ SceneRoots:
   - {fileID: 224627452}
   - {fileID: 274152821974876477}
   - {fileID: 266343894431763357}
+  - {fileID: 5229098663424738573}

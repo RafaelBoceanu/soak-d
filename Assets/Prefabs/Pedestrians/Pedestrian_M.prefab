@@ -549,12 +549,12 @@ MonoBehaviour:
   arriveDistance: 0.3
   idleChanceAtNode: 0.08
   idleSeconds: {x: 1.5, y: 4}
-  crossingWeight: 0.15
+  crossingWeight: 0.35
   backtrackWeight: 0.1
   trafficLayers:
     serializedVersion: 2
-    m_Bits: 704
-  kerbCheckRadius: 3.5
+    m_Bits: 2752
+  kerbCheckRadius: 6
   kerbWaitSeconds: {x: 0.4, y: 1.2}
   hurryThroughPuddles: 1
   puddleCheckInterval: 0.4

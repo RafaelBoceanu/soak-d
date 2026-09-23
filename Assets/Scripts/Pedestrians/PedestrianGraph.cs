@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public sealed class PedestrianGraph
@@ -20,6 +18,7 @@ public sealed class PedestrianGraph
         public int to;
         public float length;
         public bool isCrossing;
+        public int side;
     }
 
     static readonly Vector2Int[] directions =
@@ -182,7 +181,11 @@ public sealed class PedestrianGraph
             if (!lookup.TryGetValue(Key(cell, a), out int from)) continue;
             if (!lookup.TryGetValue(Key(cell, b), out int to)) continue;
 
-            AddEdge(from, to, map.IsRoad(cell + directions[side]));
+            bool acrossRoad = map.IsRoad(cell + directions[side]);
+
+            if (acrossRoad && !map.HasCrosswalk(cell, side)) continue;
+
+            AddEdge(from, to, acrossRoad, acrossRoad ? side : -1);
         }
     }
 
@@ -217,12 +220,12 @@ public sealed class PedestrianGraph
         return northSouth ? flipAlongZ[quadrant] : flipAlongX[quadrant];
     }
 
-    void AddEdge(int from, int to, bool crossing)
+    void AddEdge(int from, int to, bool crossing, int side = -1)
     {
         float length = Vector3.Distance(nodes[from].position, nodes[to].position);
 
-        pending.Add(new Edge { from = from, to = to, length = length, isCrossing = crossing });
-        pending.Add(new Edge { from = to, to = from, length = length, isCrossing = crossing });
+        pending.Add(new Edge { from = from, to = to, length = length, isCrossing = crossing, side = side });
+        pending.Add(new Edge { from = to, to = from, length = length, isCrossing = crossing, side = side });
     }
 
     void Flatten()
@@ -397,6 +400,27 @@ public sealed class PedestrianGraph
         crossing = last.isCrossing;
 
         return true;
+    }
+
+    public bool TryGetEdge(int from, int to, out Edge edge)
+    {
+        edge = default;
+
+        if (from <= 0 || from >= nodes.Count) return false;
+
+        Node node = nodes[from];
+
+        for (int i = 0; i < node.edgeCount; i++)
+        {
+            Edge candidate = edges[node.firstEdge + i];
+
+            if (candidate.to != to) continue;
+
+            edge = candidate;
+            return true;
+        }
+
+        return false;
     }
 
     static float Weight(Edge edge, int previous, float crossingWeight, float backtrackWeight)

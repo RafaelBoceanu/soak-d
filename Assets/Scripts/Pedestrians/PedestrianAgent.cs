@@ -55,6 +55,7 @@ public class PedestrianAgent : MonoBehaviour
     private int currentNode = -1;
     private int previousNode = -1;
     private int targetNode = -1;
+    private int heldAtKerb = -1;
 
     private Vector3 targetPosition;
     private Vector3 laneOffset;
@@ -64,6 +65,8 @@ public class PedestrianAgent : MonoBehaviour
     private float speedBoostUntil;
     private float waitUntil;
     private float nextPuddleCheck;
+
+    private readonly Collider[] trafficHits = new Collider[8];
 
     private int speedHash;
     private int movingHash;
@@ -88,6 +91,7 @@ public class PedestrianAgent : MonoBehaviour
         currentNode = startNode;
         previousNode = -1;
         targetNode = -1;
+        heldAtKerb = -1;
 
         walkSpeed = Random.Range(
             Mathf.Min(walkSpeedMin, walkSpeedMax),
@@ -178,15 +182,25 @@ public class PedestrianAgent : MonoBehaviour
     {
         if (graph == null || currentNode < 0) return;
 
-        if (!graph.TryPickNext(currentNode, previousNode, crossingWeight, backtrackWeight,
-                               out int next, out bool crossing))
+        int next;
+        bool crossing;
+
+        if (heldAtKerb >= 0)
+        {
+            next = heldAtKerb;
+            crossing = true;
+        }
+        else if (!graph.TryPickNext(currentNode, previousNode, crossingWeight, backtrackWeight,
+                               out next, out crossing))
         {
             targetNode = -1;
             return;
         }
 
-        if (crossing && TrafficNearby())
+        if (crossing && (!LightAllowsCrossing(next) || TrafficNearby()))
         {
+            heldAtKerb = next;
+
             waitUntil = Mathf.Max(waitUntil, Time.time + Random.Range(
                 Mathf.Min(kerbWaitSeconds.x, kerbWaitSeconds.y),
                 Mathf.Max(kerbWaitSeconds.x, kerbWaitSeconds.y)));
@@ -195,21 +209,45 @@ public class PedestrianAgent : MonoBehaviour
             return;
         }
 
+        heldAtKerb = -1;
         targetNode = next;
         IsCrossing = crossing;
 
         targetPosition = graph.NodePosition(next) + (crossing ? Vector3.zero : laneOffset);
     }
 
+    bool LightAllowsCrossing(int next)
+    {
+        TrafficManager traffic = TrafficManager.Instance;
+
+        if (traffic == null) return true;
+        if (!graph.TryGetEdge(currentNode, next, out PedestrianGraph.Edge edge) || edge.side < 0)
+            return true;
+
+        return traffic.PedestriansMayCross(graph.GetNode(currentNode).cell, edge.side);
+    }
+
     bool TrafficNearby()
     {
         if (trafficLayers.value == 0 || kerbCheckRadius <= 0f) return false;
 
-        return Physics.CheckSphere(
+        int count = Physics.OverlapSphereNonAlloc(
             transform.position + Vector3.up,
             kerbCheckRadius,
+            trafficHits,
             trafficLayers,
             QueryTriggerInteraction.Ignore);
+
+        for (int i = 0; i < count; i++)
+        {
+            TrafficCar car = trafficHits[i].GetComponentInParent<TrafficCar>();
+
+            if (car != null && car.IsStopped) continue;
+
+            return true;
+        }
+
+        return false;
     }
 
     void CheckPuddle()
@@ -264,6 +302,7 @@ public class PedestrianAgent : MonoBehaviour
             previousNode = targetNode;
 
         targetNode = -1;
+        heldAtKerb = -1;
         IsCrossing = false;
     }
 
@@ -274,6 +313,7 @@ public class PedestrianAgent : MonoBehaviour
         currentNode = node;
         previousNode = -1;
         targetNode = -1;
+        heldAtKerb = -1;
 
         PickNextTarget();
     }

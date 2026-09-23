@@ -766,6 +766,26 @@ public class ProceduralMapManager : MonoBehaviour
     public float LaneWidth => 0.20f * cellSize;
 
     public float PavementTopY => groundY + roadSurfaceLift + roadThickness * 0.25f;
+    public float RoadSurfaceY => groundY + roadSurfaceLift;
+
+    public bool HasCrosswalk(Vector2Int cell, int side)
+    {
+        Vector2Int step = neighbourSteps[side];
+
+        if (!IsRoad(cell) || !IsRoad(cell + step)) return false;
+
+        switch (CountRoadNeighbours(cell))
+        {
+            case 4:
+                return roadCrossroadsPrefab != null;
+
+            case 3:
+                return roadTJunctionPrefab != null && !IsRoad(cell - step);
+
+            default:
+                return false;
+        }
+    }
 
     public Vector3 CellCentre(Vector2Int cell)
     {
