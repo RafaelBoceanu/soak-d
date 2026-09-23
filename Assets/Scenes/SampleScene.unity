@@ -36966,7 +36966,7 @@ Rigidbody:
   m_GameObject: {fileID: 1257811238}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 1
+  m_LinearDamping: 0
   m_AngularDamping: 1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -36983,7 +36983,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!4 &1257811241
 Transform:
   m_ObjectHideFlags: 0
@@ -37017,9 +37017,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78560ff827dabb1458aaf2333b11795b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throttleIncrement: 0.1
-  maxThrust: 1.2
-  responsiveness: 5
+  maxSpeed: 20
+  acceleration: 8
+  braking: 14
+  idleSpeed: 0
+  idleSpeedReturn: 3
+  turnRate: 90
+  pitchRate: 70
+  maxPitch: 55
+  maxBank: 35
+  autoLevel: 2
+  bankSharpness: 6
+  rotationSharpness: 10
+  invertPitch: 0
+  grip: 4
+  hoverClimbSpeed: 5
+  hoverAssistSpeed: 6
   freezeWhenParked: 1
   levelWhenParked: 1
 --- !u!65 &1257811243

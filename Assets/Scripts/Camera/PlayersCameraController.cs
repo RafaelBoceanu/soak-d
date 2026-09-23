@@ -37,6 +37,17 @@ public class PlayersCameraController : MonoBehaviour
     [SerializeField] float verticalSensitivityScale = 0.75f;
     [SerializeField] bool invertVertical = false;
 
+    [Header("Vehicle Follow")]
+    [Tooltip("How fast the camera swings behind a vehicle's heading.")]
+    [SerializeField] float headingFollowSpeed = 2.5f;
+    [Tooltip("Seconds after the last manual look input before auto-follow kicks in")]
+    [SerializeField] float headingFollowDelay = 0.75f;
+
+    bool followHeading;
+    float lastLookTime = -999f;
+
+    public void SetFollowHeading(bool value) => followHeading = value;
+
     [SerializeField] float smoothTime = 0.3f;
 
     [Header("Collision")]
@@ -141,12 +152,18 @@ public class PlayersCameraController : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    void LateUpdate()
     {
         if (followTarget == null) return;
 
         BlendView();
         ApplyLook();
+
+        if (followHeading && headingFollowSpeed > 0f && Time.time - lastLookTime > headingFollowDelay)
+        {
+            float t = 1f - Mathf.Exp(-headingFollowSpeed * Time.deltaTime);
+            rotationY = Mathf.LerpAngle(rotationY, followTarget.eulerAngles.y, t);
+        }
 
         Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0);
         Vector3 framedTarget = FramedTarget(rotation);
@@ -213,6 +230,9 @@ public class PlayersCameraController : MonoBehaviour
         Vector2 degrees = input.LookIsDelta
             ? look * mouseSensitivity
             : look * gamepadSensitivity * Time.deltaTime;
+
+        if (degrees.sqrMagnitude > 0.0001f)
+            lastLookTime = Time.time;
 
         rotationY += degrees.x;
         rotationX += (invertVertical ? degrees.y : -degrees.y) * verticalSensitivityScale;

@@ -127,6 +127,7 @@ public class MountableVehicle : MonoBehaviour
         {
             camController.SetFollowTarget(transform); // follow vehicle
             camController.SetOffset(vehicleDistance, vehicleFramingOffset); // optional offset
+            camController.SetFollowHeading(broom != null);
         }
 
         // Snap to mount point
@@ -217,6 +218,7 @@ public class MountableVehicle : MonoBehaviour
         {
             camController.SetFollowTarget(currentPlayerInput.transform); // follow player
             camController.SetOffset(playerDistance, playerFramingOffset); // optional offset
+            camController.SetFollowHeading(false);
         }
 
         // Clear control
