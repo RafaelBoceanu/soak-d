@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Hierarchy;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -181,6 +182,14 @@ public class PeePuddle : MonoBehaviour
             return;
         }
 
+        GrowAt(flow, hit);
+    }
+
+    public void GrowAt(float flow, RaycastHit hit)
+    {
+        if (puddleMaterial == null || spawnPoint == null)
+            return;
+
         if (current == null || Vector3.Distance(current.Projector.transform.position, hit.point) > mergeDistance)
         {
             EndPuddle();
@@ -253,12 +262,25 @@ public class PeePuddle : MonoBehaviour
         }
     }
 
-    public bool TryPredictLanding(float flow, out RaycastHit hit) => TraceLandingPoint(flow, out hit);
+    public bool TryPredictLanding(float pressure, out RaycastHit hit) => TraceLandingPoint(pressure, out hit);
 
-    private bool TraceLandingPoint(float flow, out RaycastHit hit)
+    private bool TraceLandingPoint(float pressure, out RaycastHit hit) =>
+        TraceStream(pressure, 0, out hit, out _, out _);
+
+    public bool TraceStream(float pressure, LayerMask targetMask, out RaycastHit landing,
+                            out bool hitTarget, out RaycastHit target)
     {
-        float speed = Mathf.Lerp(minSpeed, maxSpeed, flow);
-        float gravityModifier = Mathf.Lerp(minGravity, maxGravity, flow);
+        hitTarget = false;
+        target = default;
+
+        if (spawnPoint == null)
+        {
+            landing = default;
+            return false;
+        }
+
+        float speed = Mathf.Lerp(minSpeed, maxSpeed, pressure);
+        float gravityModifier = Mathf.Lerp(minGravity, maxGravity, pressure);
 
         Vector3 position = spawnPoint.position;
         Vector3 velocity = spawnPoint.forward * speed;
@@ -268,18 +290,43 @@ public class PeePuddle : MonoBehaviour
         {
             Vector3 next = position + velocity * traceStep + 0.5f * acceleration * traceStep * traceStep;
 
-            if (Physics.Linecast(position, next, out hit, groundMask, QueryTriggerInteraction.Ignore))
+            RaycastHit t = default;
+
+            bool segmentHitTarget = !hitTarget && targetMask.value != 0 &&
+                Physics.Linecast(position, next, out t, targetMask, QueryTriggerInteraction.Collide);
+
+            if (Physics.Linecast(position, next, out landing, groundMask, QueryTriggerInteraction.Ignore))
             {
+                if (segmentHitTarget && t.distance <= landing.distance)
+                {
+                    hitTarget = true;
+                    target = t;
+                }
+
                 return true;
+            }
+
+            if (segmentHitTarget)
+            {
+                hitTarget = true;
+                target = t;
             }
 
             velocity += acceleration * traceStep;
             position = next;
         }
 
-        hit = default;
+        landing = default;
         return false;
     }
+
+    public bool DropToGround(Vector3 point, out RaycastHit hit) =>
+        Physics.Raycast(point + Vector3.up * 0.1f, Vector3.down, out hit, accidentGroundProbe + 2f,
+                        groundMask, QueryTriggerInteraction.Ignore);
+
+    public float StreamSpeed(float pressure) => Mathf.Lerp(minSpeed, maxSpeed, pressure);
+
+    public float StreamGravity(float pressure) => Mathf.Lerp(minGravity, maxGravity, pressure);
 
     private Puddle CreatePuddle(RaycastHit hit)
     {

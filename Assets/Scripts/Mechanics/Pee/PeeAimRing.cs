@@ -33,6 +33,13 @@ public class PeeAimRing : MonoBehaviour
     [Tooltip("Degrees per second the ring turns on the ground. Idles at a quarter speed.")]
     [SerializeField] private float spinSpeed = 25f;
 
+    [Header("On Target")]
+    [Tooltip("Extra size while the stream is lined up on a pedestrian")]
+    [SerializeField, Range(0f, 1f)] private float targetSwell = 0.3f;
+
+    [Tooltip("How much faster the ring spins while the stream is lined up on a pedestrian")]
+    [SerializeField, Min(1f)] private float targetSpinBoost = 4f;
+
     private float spin;
 
     void Awake()
@@ -56,7 +63,10 @@ public class PeeAimRing : MonoBehaviour
             projector.enabled = false;
     }
 
-    public void Place(Vector3 point, Vector3 normal, float flow, Vector3 viewerPosition, bool streaming)
+    public void Place(Vector3 point, Vector3 normal, float flow, Vector3 viewerPosition, bool streaming) =>
+        Place(point, normal, flow, viewerPosition, streaming, false);
+
+    public void Place(Vector3 point, Vector3 normal, float flow, Vector3 viewerPosition, bool streaming, bool onTarget)
     {
         if (projector == null)
             return;
@@ -65,7 +75,12 @@ public class PeeAimRing : MonoBehaviour
 
         Vector3 upHint = Mathf.Abs(Vector3.Dot(normal, Vector3.up)) > 0.99f ? Vector3.forward : Vector3.up;
 
-        spin += (streaming ? spinSpeed : spinSpeed * 0.25f) * Time.deltaTime;
+        float spinRate = streaming ? spinSpeed : spinSpeed * 0.25f;
+
+        if (onTarget)
+            spinRate *= targetSpinBoost;
+
+        spin += spinRate * Time.deltaTime;
 
         // The projector shoots along its own forward, so it has to look into the surface.
         transform.SetPositionAndRotation(point, Quaternion.LookRotation(-normal, upHint));
@@ -77,6 +92,9 @@ public class PeeAimRing : MonoBehaviour
 
         if (streaming)
             size *= 1f + pulseAmount * Mathf.Sin(Time.time * pulseSpeed * Mathf.PI * 2f);
+
+        if (onTarget)
+            size *= 1f + targetSwell;
 
         size = Mathf.Clamp(size, sizeClamp.x, sizeClamp.y);
 

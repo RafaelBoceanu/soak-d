@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using UnityEditor.iOS.Extensions.Common;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class TrafficManager : MonoBehaviour
 {

@@ -296,6 +296,13 @@ public class PedestrianAgent : MonoBehaviour
         UpdateAnimator();
     }
 
+    public void Hurry(float seconds)
+    {
+        if (seconds <= 0f) return;
+
+        speedBoostUntil = Mathf.Max(speedBoostUntil, Time.time + seconds);
+    }
+
     public void TurnBack()
     {
         if (targetNode >= 0)

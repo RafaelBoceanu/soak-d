@@ -100,6 +100,8 @@ public class PlayersCameraController : MonoBehaviour
     public float MinPitch => minVerticalAngle;
     public float MaxPitch => maxVerticalAngle;
 
+    public Camera ViewCamera => cam;
+
     public static PlayersCameraController ForOwner(OwnerType owner) =>
         rigs.TryGetValue(owner, out PlayersCameraController rig) ? rig : null;
 
