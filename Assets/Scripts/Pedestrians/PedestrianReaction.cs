@@ -61,6 +61,20 @@ public class PedestrianReaction : MonoBehaviour
     [SerializeField] private AudioSource vomitSound;
     [SerializeField, Min(0f)] private float shakeOnVomit = 0.1f;
 
+    [Header("Vomit Puddle")]
+    [Tooltip("A material using the 'Shader Graphs/Decal' shader")]
+    [SerializeField] private Material vomitPuddleMaterial;
+
+    [Tooltip("What the vomit puddle cand land on")]
+    [SerializeField] private LayerMask vomitGroundMask = 0;
+
+    [SerializeField, Min(0.05f)] private float vomitPuddleRadius = 0.45f;
+
+    [Tooltip("Seconds the puddle stays at full strength once it has spread.")]
+    [SerializeField, Min(0f)] private float vomitPuddleSeconds = 25f;
+
+    [SerializeField, Min(0.01f)] private float vomitPuddleFadeSeconds = 5f;
+
     [Header("Feedback")]
     [SerializeField] private AudioSource hitSound;
     [SerializeField] private ParticleSystem hitEffect;
@@ -100,6 +114,12 @@ public class PedestrianReaction : MonoBehaviour
         if (animator == null && agent != null) animator = agent.GetComponentInChildren<Animator>();
 
         hasVomitParameter = HasTrigger(vomitTrigger);
+
+        if (vomitGroundMask.value == 0)
+            vomitGroundMask = LayerMask.GetMask("Ground");
+
+        if (vomitGroundMask.value == 0)
+            vomitGroundMask = Physics.DefaultRaycastLayers & ~LayerMask.GetMask("Pedestrian", "Player");
 
         Collider trigger = GetComponent<Collider>();
 
@@ -208,17 +228,24 @@ public class PedestrianReaction : MonoBehaviour
                 animator.SetTrigger(reactionTrigger);
         }
 
+        Transform body = Body;
+        Vector3 mouth = body.TransformPoint(mouthOffset);
+
+        Quaternion spew = body.rotation * Quaternion.Euler(35f, 0f, 0f);
+
         ParticleSystem effect = VomitEffect();
 
         if (effect != null)
         {
-            Transform body = Body;
-
-            effect.transform.SetPositionAndRotation(
-                body.TransformPoint(mouthOffset),
-                body.rotation * Quaternion.Euler(35f, 0f, 0f));
-
+            effect.transform.SetPositionAndRotation(mouth, spew);
             effect.Play(true);
+        }
+
+        if (TraceVomit(mouth, spew * Vector3.forward, out RaycastHit ground, out float flightSeconds))
+        {
+            VomitPuddle.Spawn(ground, vomitPuddleRadius, flightSeconds,
+                              Mathf.Max(0.1f, vomitSeconds * 0.6f),
+                              vomitPuddleSeconds, vomitPuddleFadeSeconds, vomitPuddleMaterial);
         }
 
         if (vomitSound != null)
@@ -228,6 +255,39 @@ public class PedestrianReaction : MonoBehaviour
             PlayersCameraController.Shake(owner, shakeOnVomit);
 
         OnPedestrianVomit?.Invoke(owner, this);
+    }
+
+    bool TraceVomit(Vector3 from, Vector3 direction, out RaycastHit hit, out float seconds)
+    {
+        const float speed = 2.25f;
+        const float gravityModifier = 1.2f;
+        const float step = 0.05f;
+
+        Vector3 position = from;
+        Vector3 velocity = direction * speed;
+        Vector3 acceleration = Physics.gravity * gravityModifier;
+
+        seconds = 0f;
+
+        for (int i = 0; i < 40; i++)
+        {
+            Vector3 next = position + velocity * step + 0.5f * acceleration * step * step;
+
+            if (Physics.Linecast(position, next, out hit, vomitGroundMask, QueryTriggerInteraction.Ignore))
+            {
+                seconds += step * (hit.distance / Mathf.Max(0.0001f, Vector3.Distance(position, next)));
+                return true;
+            }
+
+            velocity += acceleration * step;
+            position = next;
+            seconds += step;
+        }
+
+        seconds = 0.4f;
+        Vector3 ahead = Body.position + Body.forward * 0.7f + Vector3.up;
+
+        return Physics.Raycast(ahead, Vector3.down, out hit, 3f, vomitGroundMask, QueryTriggerInteraction.Ignore);
     }
 
     ParticleSystem VomitEffect()
