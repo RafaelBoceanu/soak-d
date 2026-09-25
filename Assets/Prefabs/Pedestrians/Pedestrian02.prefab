@@ -1635,6 +1635,104 @@ Transform:
   - {fileID: 8997779598557143992}
   m_Father: {fileID: 4467674063908786931}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6619900804730308041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6800414356195849240}
+  - component: {fileID: 365124487246432303}
+  - component: {fileID: 4613526239102128199}
+  m_Layer: 10
+  m_Name: HitBox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6800414356195849240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6619900804730308041}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8673049394074949262}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &365124487246432303
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6619900804730308041}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.45
+  m_Height: 1.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &4613526239102128199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6619900804730308041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f115370844eeb534fbfdb79d1fd91caf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PedestrianReaction
+  agent: {fileID: 0}
+  animator: {fileID: 0}
+  onNewspaperHit: 0
+  stunSeconds: 2
+  reactionTrigger: Hit
+  destroyNewspaperOnHit: 1
+  shakeOnHit: 0.15
+  reactToPee: 1
+  peeStunSeconds: 1.5
+  soakSecondsToVomit: 0.6
+  soakDryingPerSecond: 0.5
+  vomitSeconds: 3
+  vomitTrigger: Vomit
+  vomitCooldown: 6
+  fleeSeconds: 4
+  mouthOffset: {x: 0, y: 1.55, z: 0.2}
+  vomitEffect: {fileID: 0}
+  vomitMaterial: {fileID: 0}
+  vomitSound: {fileID: 0}
+  shakeOnVomit: 0.1
+  vomitPuddleMaterial: {fileID: 0}
+  vomitGroundMask:
+    serializedVersion: 2
+    m_Bits: 0
+  vomitPuddleRadius: 0.45
+  vomitPuddleSeconds: 25
+  vomitPuddleFadeSeconds: 5
+  hitSound: {fileID: 0}
+  hitEffect: {fileID: 0}
+  reactionCooldown: 0.5
 --- !u!1 &6711150930668831409
 GameObject:
   m_ObjectHideFlags: 0
@@ -1795,6 +1893,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6800414356195849240}
   - {fileID: 4010329636679830696}
   - {fileID: 3599444036189506068}
   m_Father: {fileID: 0}
