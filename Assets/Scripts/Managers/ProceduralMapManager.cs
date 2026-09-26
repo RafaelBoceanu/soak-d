@@ -116,11 +116,28 @@ public class ProceduralMapManager : MonoBehaviour
     public Transform roadsParent;
     public Transform housesParent;
 
+    [Header("Newspaper Stands")]
+    [Tooltip("Prefab with an InventoryRefillZone on its root")]
+    public GameObject newspaperStandPrefab;
+
+    [Tooltip("How many stands are set out along the streets")]
+    [Min(0)] public int newspaperStands = 3;
+
+    [Tooltip("Fewest cells between two stands, to make sure they are spread around town")]
+    [Min(0)] public int minStandSpacing = 12;
+
+    [Tooltip("Distance from the centre of the road to the front of a stand")]
+    public float standSetback = 4.3f;
+
+    public Transform standsParent;
+
     public event Action<IReadOnlyList<Transform>> OnHousesGenerated;
 
     private int[,] grid;
     private int[,] occupancyGrid;
     private List<Transform> spawnedHouses = new List<Transform>();
+    private List<Transform> spawnedStands = new List<Transform>();
+    private List<Vector2Int> standPlots = new List<Vector2Int>();
     private List<Vector2Int> roadNetwork = new List<Vector2Int>();
     private List<Vector2Int> branchOrigins = new List<Vector2Int>();
 
@@ -149,6 +166,7 @@ public class ProceduralMapManager : MonoBehaviour
         GenerateGrid();
         GenerateRoads();
         SpawnRoads();
+        SpawnNewspaperStands();
         SpawnHouses();
 
         Debug.Log("Total houses generated: " + spawnedHouses.Count);
@@ -239,6 +257,8 @@ public class ProceduralMapManager : MonoBehaviour
         branchOrigins.Clear();
         roadDirections.Clear();
         spawnedHouses.Clear();
+        spawnedStands.Clear();
+        standPlots.Clear();
     }
 
     void GenerateRoads()
@@ -696,6 +716,85 @@ public class ProceduralMapManager : MonoBehaviour
         return count;
     }
 
+    void SpawnNewspaperStands()
+    {
+        if (newspaperStandPrefab == null || newspaperStands <= 0 || roadNetwork.Count == 0)
+            return;
+
+        if (!TryMeasurePrefab(newspaperStandPrefab, out Bounds bounds))
+        {
+            Debug.LogWarning(
+                $"'{newspaperStandPrefab.name}' has no meshes to measure; no newspaper stands " +
+                $"will be spawned.", newspaperStandPrefab);
+
+            return;
+        }
+
+        const int attemptsPerStand = 64;
+
+        for (int i = 0; i < newspaperStands; i++)
+        {
+            for (int attempt = 0; attempt < attemptsPerStand; attempt++)
+            {
+                Vector2Int road = roadNetwork[UnityEngine.Random.Range(0, roadNetwork.Count)];
+                Vector2Int step = neighbourSteps[UnityEngine.Random.Range(0, neighbourSteps.Length)];
+                Vector2Int plot = road + step;
+
+                if (!IsInsideGrid(plot)) continue;
+                if (grid[plot.x, plot.y] != 0 || occupancyGrid[plot.x, plot.y] == 1) continue;
+                if (IsTooCloseToAnotherStand(plot)) continue;
+
+                PlaceNewspaperStand(road, plot, step, bounds);
+                break;
+            }
+        }
+
+        if (spawnedStands.Count < newspaperStands)
+        {
+            Debug.LogWarning(
+                $"Only {spawnedStands.Count} of {newspaperStands} newspaper stands found a plot. " +
+                $"Lower Min Stand Spacing.", this);
+        }
+    }
+
+    void PlaceNewspaperStand(Vector2Int road, Vector2Int plot, Vector2Int step, Bounds bounds)
+    {
+        Vector3 dir = new Vector3(step.x, 0f, step.y);
+        Vector3 roadPos = new Vector3(road.x * cellSize, groundY, road.y * cellSize);
+
+        Vector3 standPos = roadPos
+            + dir * (standSetback + bounds.max.z)
+            + Vector3.up * -bounds.min.y;
+
+        GameObject stand = Instantiate(
+            newspaperStandPrefab, standPos, Quaternion.LookRotation(-dir), standsParent);
+
+        stand.name = newspaperStandPrefab.name + "_" + plot.x + "_" + plot.y;
+
+        if (stand.GetComponentInChildren<InventoryRefillZone>() == null)
+        {
+            Debug.LogWarning(
+                $"'{newspaperStandPrefab.name}' has no InventoryRefillZone, so it hands out nothing.", stand);
+        }
+
+        spawnedStands.Add(stand.transform);
+        standPlots.Add(plot);
+
+        occupancyGrid[plot.x, plot.y] = 1;
+    }
+
+    bool IsTooCloseToAnotherStand(Vector2Int plot)
+    {
+        foreach (Vector2Int other in standPlots)
+        {
+            int distance = Mathf.Abs(other.x - plot.x) + Mathf.Abs(other.y - plot.y);
+
+            if (distance < minStandSpacing) return true;
+        }
+
+        return false;
+    }
+
     void SpawnHouses()
     {
         if (validHousePrefabs.Count == 0) return;
@@ -759,6 +858,11 @@ public class ProceduralMapManager : MonoBehaviour
     public IReadOnlyList<Transform> GetSpawnedHouses()
     {
         return spawnedHouses;
+    }
+
+    public IReadOnlyList<Transform> GetNewspaperStands()
+    {
+        return spawnedStands;
     }
 
     [Header("Pavements")]
