@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BicycleController : MonoBehaviour
 {
@@ -89,14 +90,35 @@ public class BicycleController : MonoBehaviour
     [Tooltip("Deceleration per point of braking strength, in units per second squared")]
     public float brakeDeceleration = 25f;
 
+    [Header("Bunny Hop")]
+    [Tooltip("Lets the rider make the bike jump by pressing the Jump button")]
+    public bool canHop = true;
+    [Tooltip("How high the wheel rises off the ground")]
+    public float hopHeight = 0.9f;
+    [Tooltip("Seconds after landing before the bike can jump again")]
+    public float hopCooldown = 0.35f;
+    [Tooltip("Seconds a press is remembered while the wheel is still in the air")]
+    public float hopBufferSeconds = 0.15f;
+    [Tooltip("Seconds after take-off during which the ground probe is ignored")]
+    public float hopLiftoffSeconds = 0.12f;
+    public AudioSource hopSound;
+
     private bool isControlled = false;
     private bool isBraking = false;
+    private float hopRequestedAt = float.NegativeInfinity;
+    private float liftoffUntil;
+    private float nextHopTime;
+    private bool hopping;
+
+    public bool IsGrounded => isGrounded;
+    public event System.Action OnHop;
 
     [Header("Cranks")]
     [SerializeField] private Transform cranksPivot;
 
     [Tooltip("Degrees the cranks turn for every unit the bike travels")]
     [SerializeField] private float crankDegreesPerUnit = 51f;
+
 
     void Awake()
     {
@@ -159,6 +181,9 @@ public class BicycleController : MonoBehaviour
         velocity = Vector3.zero;
         currentVelocityOffset = 0f;
         leanAngle = 0f;
+        hopRequestedAt = float.NegativeInfinity;
+        liftoffUntil = 0f;
+        hopping = false;
 
         if (sphereRB != null)
         {
@@ -202,6 +227,11 @@ public class BicycleController : MonoBehaviour
         steerInput = Mathf.Clamp(steer, -1f, 1f);
         isBraking = brake;
     }
+    public void Hop()
+    {
+        if (canHop && isControlled)
+            hopRequestedAt = Time.time;
+    }
 
     public Transform RiderAnchor => bicycleBody != null ? bicycleBody.transform : transform;
 
@@ -229,7 +259,15 @@ public class BicycleController : MonoBehaviour
 
     void Movement()
     {
-        isGrounded = Grounded();
+        isGrounded = Time.time >= liftoffUntil && Grounded();
+
+        if (isGrounded && hopping)
+        {
+            hopping = false;
+            nextHopTime = Time.time + hopCooldown;
+        }
+
+        TryHop();
 
         float authority = isGrounded ? 1f : airControl;
 
@@ -249,6 +287,32 @@ public class BicycleController : MonoBehaviour
             Gravity();
 
         BikeTilt();
+    }
+
+    void TryHop()
+    {
+        if (!isGrounded || hopping || Time.time < nextHopTime)
+            return;
+
+        if (Time.time - hopRequestedAt > hopBufferSeconds)
+            return;
+
+        hopRequestedAt = float.NegativeInfinity;
+
+        float fall = gravity + (sphereRB.useGravity ? -Physics.gravity.y : 0f);
+        float launch = Mathf.Sqrt(2f * Mathf.Max(fall, 0.01f) * Mathf.Max(hopHeight, 0f));
+
+        Vector3 current = sphereRB.linearVelocity;
+        sphereRB.linearVelocity = new Vector3(current.x, Mathf.Max(current.y, 0f) + launch, current.z);
+
+        hopping = true;
+        isGrounded = false;
+        liftoffUntil = Time.time + hopLiftoffSeconds;
+
+        if (hopSound != null)
+            hopSound.Play();
+
+        OnHop?.Invoke();
     }
 
     void Acceleration(float authority)

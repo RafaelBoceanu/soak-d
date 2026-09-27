@@ -78,7 +78,7 @@
                     "interactions": "",
                     "initialStateCheck": false
                 },
-				{
+                {
                     "name": "Drink",
                     "type": "Button",
                     "id": "902e1ac7-8473-483e-ba9b-fe3f000f1170",
@@ -145,6 +145,33 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "f730de90-829f-41c4-9fe9-9c76c54bb688",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "a75dd0ae-06c0-44bd-99bf-dd2a7da47cad",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwapAmmo",
+                    "type": "Button",
+                    "id": "8d46416c-4ec7-45c1-b6b7-7b75401e9e72",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Ultimate",
+                    "type": "Button",
+                    "id": "eddfbe29-8ce0-4ebf-ad0e-74b2cc4ce70f",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -548,7 +575,7 @@
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
-				 {
+                {
                     "name": "",
                     "id": "71e9bf75-a6d6-4856-83f7-eada33bd9a95",
                     "path": "<Keyboard>/f",
@@ -943,6 +970,105 @@
                     "action": "Yaw",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "df7b0142-9430-4547-8b1b-55cef275ff96",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84d6a8f3-4944-4ed3-a8a9-9c929c9c9d40",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "81ddca6c-d1b5-46a4-bb1e-71d2ddf97139",
+                    "path": "<Keyboard>/rightShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardAlt",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5d08514b-715a-43d8-80a4-647d1b116787",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SwapAmmo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ce69a34a-b8bd-4eb9-86cb-b2a17fa420a8",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "SwapAmmo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1a20a843-6895-4ef2-a387-9fd91a6993c0",
+                    "path": "<Keyboard>/numpad5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardAlt",
+                    "action": "SwapAmmo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ab473b05-244d-4a2c-977f-949529371a32",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Ultimate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "64e7a9b5-9873-4d60-89c5-d08ae473aabd",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Ultimate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1b1d7eec-264d-4beb-b834-2baa13ac39d4",
+                    "path": "<Keyboard>/end",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardAlt",
+                    "action": "Ultimate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

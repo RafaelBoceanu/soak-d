@@ -90,6 +90,10 @@ public class PlayerInputHandler : MonoBehaviour
         if (bike != null)
         {
             bike.SetInput(move.y, move.x, input.Brake);
+
+            if (input.JumpPressed)
+                bike.Hop();
+
             return;
         }
 

@@ -23,6 +23,9 @@ public class PlayerInputContext
     private readonly InputAction pumpRight;
     private readonly InputAction cycleView;
     private readonly InputAction pause;
+    private readonly InputAction jump;
+    private readonly InputAction swapAmmo;
+    private readonly InputAction ultimate;
 
     public OwnerType Owner { get; }
 
@@ -63,6 +66,9 @@ public class PlayerInputContext
         pumpRight = Find(map, "PumpRight");
         cycleView = Find(map, "CycleView");
         pause = Find(map, "Pause");
+        jump = Find(map, "Jump");
+        swapAmmo = Find(map, "SwapAmmo");
+        ultimate = Find(map, "Ultimate");
     }
 
     private static InputAction Find(InputActionMap map, string actionName)
@@ -126,6 +132,9 @@ public class PlayerInputContext
     public bool PumpRightPressed => Pressed(pumpRight);
     public bool CycleViewPressed => Pressed(cycleView);
     public bool PausePressed => Pressed(pause);
+    public bool JumpPressed => Pressed(jump);
+    public bool SwapAmmoPressed => Pressed(swapAmmo);
+    public bool UltimatePressed => Pressed(ultimate);
 
     private Vector2 Axis2(InputAction action) =>
         IsPaired && action != null ? action.ReadValue<Vector2>() : Vector2.zero;
