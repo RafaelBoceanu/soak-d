@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7152550090374759456}
   - component: {fileID: 7231384099288674271}
   m_Layer: 0
-  m_Name: PickupSparkle
+  m_Name: PickupSparkleFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
