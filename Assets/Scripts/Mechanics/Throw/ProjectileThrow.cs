@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
+using UnityEditor.Build;
 using UnityEngine;
 
 public class ProjectileThrow : MonoBehaviour
 {
+    public enum Ammo { Newspaper, WaterBalloon }
+
     ProjectileTrajectory projectileTrajectory;
 
     [Header("Projectile")]
@@ -25,6 +29,19 @@ public class ProjectileThrow : MonoBehaviour
     [Tooltip("Inventory to spend from. Left empty it is taken from this object, then from the rig registered for the same owner.")]
     [SerializeField] private PlayerInventory inventory;
 
+    [Header("Water Balloon")]
+    [Tooltip("Lets this player swap to water balloons, filled from their own bladder")]
+    [SerializeField] private bool allowWaterBalloons = false;
+    [Tooltip("Must carry a WaterBalloon component")]
+    [SerializeField] private Rigidbody waterBalloonPrefab;
+    [Tooltip("Bladder spent filling one balloon")]
+    [SerializeField, Min(0f)] private float bladderPerBalloon = 15f;
+    [SerializeField] private Color balloonTrailColor = new Color(0.95f, 0.85f, 0.2f);
+    [Tooltip("Left empty, taken from this object")]
+    [SerializeField] private PlayerNeeds playerNeeds;
+    [Tooltip("Where the balloon's puddle is drawn")]
+    [SerializeField] private PeePuddle peePuddle;
+
     [Header("Aiming")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject crosshairUI;
@@ -36,6 +53,15 @@ public class ProjectileThrow : MonoBehaviour
     private float cachedDrag;
 
     private bool warnedNoInventory;
+
+    private Ammo loaded = Ammo.Newspaper;
+
+    public static event Action<OwnerType, Ammo> OnAmmoSwapped;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => OnAmmoSwapped = null;
+
+    public Ammo Loaded => loaded;
 
     public int AmmoLeft => inventory != null ? inventory.GetCount(ammoItem) : 0;
 
@@ -60,6 +86,12 @@ public class ProjectileThrow : MonoBehaviour
             crosshairUI.SetActive(false);
 
         ResolveInventory();
+
+        if (playerNeeds == null)
+            playerNeeds = GetComponentInParent<PlayerNeeds>();
+
+        if (peePuddle == null)
+            peePuddle = GetComponentInParent<PeePuddle>();
     }
 
     void Update()
@@ -68,6 +100,9 @@ public class ProjectileThrow : MonoBehaviour
 
         if (input == null)
             return;
+
+        if (allowWaterBalloons && input.SwapAmmoPressed)
+            SwapAmmo();
 
         bool aimButton = input.Aim;
         bool hasAmmo = HasAmmo();
@@ -142,8 +177,27 @@ public class ProjectileThrow : MonoBehaviour
         return inventory;
     }
 
+    public void SwapAmmo()
+    {
+        if (!allowWaterBalloons)
+            return;
+
+        loaded = loaded == Ammo.Newspaper ? Ammo.WaterBalloon : Ammo.Newspaper;
+
+        isCharging = false;
+        currentForce = 0f;
+
+        OnAmmoSwapped?.Invoke(owner, loaded);
+    }
+
+    bool CanFillBalloon() =>
+        playerNeeds != null && !playerNeeds.IsHavingAccident && playerNeeds.pee >= bladderPerBalloon;
+
     bool HasAmmo()
     {
+        if (loaded == Ammo.WaterBalloon)
+            return CanFillBalloon();
+
         if (!requireAmmo)
             return true;
 
@@ -174,13 +228,19 @@ public class ProjectileThrow : MonoBehaviour
             direction = aimDir,
             initialPosition = launchPos,
             initialSpeed = currentForce,
-            mass = cachedMass,
-            drag = cachedDrag
+            mass = loaded == Ammo.WaterBalloon && waterBalloonPrefab != null ? waterBalloonPrefab.mass : cachedMass,
+            drag = loaded == Ammo.WaterBalloon && waterBalloonPrefab != null ? waterBalloonPrefab.linearDamping : cachedDrag
         };
     }
 
     void ThrowObject()
     {
+        if (loaded == Ammo.WaterBalloon)
+        {
+            ThrowBalloon();
+            return;
+        }
+
         if (!objectToThrow) return;
 
         if (requireAmmo)
@@ -207,7 +267,7 @@ public class ProjectileThrow : MonoBehaviour
         if (tumbleAxis.sqrMagnitude < 0.001f)
             tumbleAxis = playerCamera.transform.right;
 
-        tumbleAxis = (tumbleAxis.normalized + Random.insideUnitSphere * 0.12f).normalized;
+        tumbleAxis = (tumbleAxis.normalized + UnityEngine.Random.insideUnitSphere * 0.12f).normalized;
         thrownObject.AddTorque(tumbleAxis * tumbleTorque, ForceMode.Impulse);
 
         ThrownProjectile projectile = thrownObject.GetComponent<ThrownProjectile>();
@@ -222,6 +282,36 @@ public class ProjectileThrow : MonoBehaviour
         }
 
         StartCoroutine(DestroyObject(thrownObject.gameObject));
+    }
+
+    void ThrowBalloon()
+    {
+        if (waterBalloonPrefab == null || !CanFillBalloon())
+            return;
+
+        playerNeeds.Pee(bladderPerBalloon);
+
+        ProjectileProperties data = ProjectileData();
+
+        Rigidbody balloon = Instantiate(waterBalloonPrefab, data.initialPosition,
+                                        Quaternion.LookRotation(data.direction));
+
+        balloon.AddForce(data.direction * currentForce, ForceMode.Impulse);
+        balloon.AddTorque(UnityEngine.Random.insideUnitSphere * tumbleTorque, ForceMode.Impulse);
+
+        WaterBalloon splash = balloon.GetComponent<WaterBalloon>();
+
+        if (splash != null)
+            splash.Launch(owner, peePuddle);
+        else
+            Debug.LogWarning($"[ProjectileThrow] {balloon.name} has no WaterBalloon component, so it will never burst.", balloon);
+
+        TrailRenderer trail = balloon.GetComponentInChildren<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.startColor = balloonTrailColor;
+            trail.endColor = new Color(balloonTrailColor.r, balloonTrailColor.g, balloonTrailColor.b, 0f);
+        }
     }
 
     IEnumerator DestroyObject(GameObject objectToDestroy)

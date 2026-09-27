@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Hierarchy;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 [DisallowMultipleComponent]
@@ -202,44 +203,49 @@ public class PeePuddle : MonoBehaviour
         ApplySize(current);
     }
 
-    public void Spill(Vector3 worldPosition)
+    public void Spill(Vector3 worldPosition) =>
+        Splash(worldPosition, accidentRadius, accidentSpreadSeconds, 0f);
+
+    public bool Splash(Vector3 worldPosition, float radius, float spreadSeconds, float soakSeconds)
     {
         if (puddleMaterial == null)
         {
             Debug.LogError($"[PeePuddle] {name} has no Puddle Material, so an accident leaves " +
                            $"nothing behind.", this);
-            return;
+            return false;
         }
 
         Vector3 origin = worldPosition + Vector3.up * 0.5f;
 
         if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, accidentGroundProbe + 0.5f, groundMask, QueryTriggerInteraction.Ignore))
         {
-            return;
+            return false;
         }
 
         EndPuddle();
 
         Puddle puddle = CreatePuddle(hit);
 
-        puddle.MaxRadius = Mathf.Max(accidentRadius, startRadius);
+        puddle.MaxRadius = Mathf.Max(radius, startRadius);
 
         puddle.Flow = 1f;
 
-        StartCoroutine(SpreadAccident(puddle));
+        StartCoroutine(Spread(puddle, Mathf.Max(0.01f, spreadSeconds), Mathf.Max(0f, soakSeconds)));
+    
+        return true;
     }
 
-    private IEnumerator SpreadAccident(Puddle puddle)
+    private IEnumerator Spread(Puddle puddle, float spreadSeconds, float soakSeconds)
     {
         float from = puddle.Radius;
         float elapsed = 0f;
 
-        while (elapsed < accidentSpreadSeconds && puddle.Projector != null)
+        while (elapsed < spreadSeconds && puddle.Projector != null)
         {
             elapsed += Time.deltaTime;
 
             puddle.Radius = Mathf.Lerp(from, puddle.MaxRadius,
-                                       Mathf.Clamp01(elapsed / accidentSpreadSeconds));
+                                       Mathf.Clamp01(elapsed / spreadSeconds));
 
             // Hold off the fade until it has finished spreading.
             puddle.Age = 0f;
@@ -248,6 +254,9 @@ public class PeePuddle : MonoBehaviour
 
             yield return null;
         }
+
+        if (soakSeconds > 0f && puddle.Projector != null)
+            yield return new WaitForSeconds(soakSeconds);
 
         // Hand it over to the normal ageing and fading from here.
         puddle.Finished = true;
