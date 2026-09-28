@@ -41,6 +41,11 @@ public class CanvasManager : MonoBehaviour
     [SerializeField] private Image witchNewspaperIcon;
     [SerializeField] private Image witchWaterBottleIcon;
 
+    [Header("Boy abilities")]
+    [SerializeField] private Slider boyUltimateSlider;
+    [SerializeField] private GameObject boyUltimateReady;
+    [SerializeField] private GameObject boyBalloonLoaded;
+
     [Tooltip("{0} is the amount held, {1} the maximum. \"{0}\" shows 3, \"{0}/{1}\" shows 3/6.")]
     [SerializeField] private string inventoryCountFormat = "{0}/{1}";
 
@@ -82,6 +87,8 @@ public class CanvasManager : MonoBehaviour
         MatchManager.OnMatchEnded += MatchOnMatchEnded;
         DeliveryScoreManager.OnScoreChanged += ScoreOnChanged;
         DeliveryScoreManager.onZoneCountChanged += ZoneCountOnChanged;
+        FireHydrantAbility.OnChargeChanged += UltimateOnChargeChanged;
+        ProjectileThrow.OnAmmoSwapped += ThrowOnAmmoSwapped;
     }
 
     void OnDestroy()
@@ -92,6 +99,8 @@ public class CanvasManager : MonoBehaviour
         MatchManager.OnMatchEnded -= MatchOnMatchEnded;
         DeliveryScoreManager.OnScoreChanged -= ScoreOnChanged;
         DeliveryScoreManager.onZoneCountChanged -= ZoneCountOnChanged;
+        FireHydrantAbility.OnChargeChanged -= UltimateOnChargeChanged;
+        ProjectileThrow.OnAmmoSwapped -= ThrowOnAmmoSwapped;
     }
 
     void Start()
@@ -108,6 +117,9 @@ public class CanvasManager : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        if (boyBalloonLoaded != null)
+            boyBalloonLoaded.SetActive(false);
     }
 
     private void GameManagerOnGameStateChanged(GameState state)
@@ -166,6 +178,35 @@ public class CanvasManager : MonoBehaviour
         witchPeeSlider.value = value;
         if (witchPeeFill != null) witchPeeFill.color = peeFillGradient.Evaluate(value);
     }
+
+    #region Abilities
+    private void UltimateOnChargeChanged(OwnerType owner, float charge)
+    {
+        if (owner != OwnerType.Boy)
+            return;
+
+        if (boyUltimateSlider != null)
+            boyUltimateSlider.value = charge;
+
+        if (boyUltimateReady != null)
+        {
+            bool ready = charge >= 1f;
+
+            if (ready && !boyUltimateReady.activeSelf && boyUltimateReady.transform is RectTransform rect)
+                PunchScale(rect, punchAmount);
+
+            boyUltimateReady.SetActive(ready);
+        }
+    }
+
+    private void ThrowOnAmmoSwapped(OwnerType owner, ProjectileThrow.Ammo ammo)
+    {
+        if (owner != OwnerType.Boy || boyBalloonLoaded == null)
+            return;
+
+        boyBalloonLoaded.SetActive(ammo == ProjectileThrow.Ammo.WaterBalloon);
+    }
+    #endregion
 
     #region Inventory counters
     public void RefreshInventoryLabels()
