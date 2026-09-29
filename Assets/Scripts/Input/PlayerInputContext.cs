@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,8 @@ public class PlayerInputContext
     private readonly InputAction jump;
     private readonly InputAction swapAmmo;
     private readonly InputAction ultimate;
+    private readonly InputAction hex;
+    private readonly InputAction ward;
 
     public OwnerType Owner { get; }
 
@@ -69,6 +72,8 @@ public class PlayerInputContext
         jump = Find(map, "Jump");
         swapAmmo = Find(map, "SwapAmmo");
         ultimate = Find(map, "Ultimate");
+        hex = Find(map, "Hex");
+        ward = Find(map, "Ward");
     }
 
     private static InputAction Find(InputActionMap map, string actionName)
@@ -108,7 +113,7 @@ public class PlayerInputContext
     {
         IsPaired = false;
         actions.Disable();
-        Object.Destroy(actions);
+        UnityEngine.Object.Destroy(actions);
     }
     #endregion
 
@@ -135,6 +140,8 @@ public class PlayerInputContext
     public bool JumpPressed => Pressed(jump);
     public bool SwapAmmoPressed => Pressed(swapAmmo);
     public bool UltimatePressed => Pressed(ultimate);
+    public bool HexPressed => Pressed(hex);
+    public bool WardPressed => Pressed(ward);
 
     private Vector2 Axis2(InputAction action) =>
         IsPaired && action != null ? action.ReadValue<Vector2>() : Vector2.zero;
