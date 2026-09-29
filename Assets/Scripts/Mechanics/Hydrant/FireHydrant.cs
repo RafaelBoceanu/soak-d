@@ -89,7 +89,7 @@ public class FireHydrant : MonoBehaviour
 
         foreach (NewspaperDelivery zone in NewspaperDelivery.All)
         {
-            if (zone == null || !zone.wasDelivered || zone.AllowedOwner != target)
+            if (zone == null || !zone.wasDelivered || zone.AllowedOwner != target || zone.IsWarded)
                 continue;
 
             Vector3 gap = zone.transform.position - centre;
@@ -118,17 +118,5 @@ public class FireHydrant : MonoBehaviour
         VomitPuddle.Spawn(hit, floodRadius, 0f, spreadSeconds,
                           Mathf.Max(0f, gushSeconds - spreadSeconds) + floodLingerSeconds,
                           floodFadeSeconds, floodMaterial);
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

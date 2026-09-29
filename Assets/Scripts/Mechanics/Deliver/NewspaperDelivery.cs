@@ -24,6 +24,13 @@ public class NewspaperDelivery : MonoBehaviour
     [Header("Zone marker")]
     [SerializeField] GameObject zoneMarker;
 
+    [Header("Ward")]
+    [Tooltip("Shown while a Witch's Warding Charm protects this paper")]
+    [SerializeField] GameObject wardEffect;
+
+    float wardedUntil;
+    Coroutine wardRoutine;
+
     public OwnerType allowedOwner;
 
     public bool wasDelivered = false;
@@ -76,6 +83,9 @@ public class NewspaperDelivery : MonoBehaviour
 
     void Awake()
     {
+        if (wardEffect != null)
+            wardEffect.SetActive(false);
+
         if (newspaperModel == null) return;
 
         DestroyNewspaper destroyer = newspaperModel.GetComponent<DestroyNewspaper>();
@@ -163,6 +173,8 @@ public class NewspaperDelivery : MonoBehaviour
     {
         if (!wasDelivered) return;
 
+        EndWard();
+
         DeliveryScoreManager.ReportDeliveryLost(allowedOwner);
         PlayersCameraController.Shake(allowedOwner, 0.45f);
 
@@ -185,6 +197,48 @@ public class NewspaperDelivery : MonoBehaviour
             StopHideDestroyedRoutine();
             hideDestroyedRoutine = StartCoroutine(HideDestroyedModelAfterDelay());
         }
+    }
+
+    public bool IsWarded => wasDelivered && Time.time < wardedUntil;
+
+    public bool CanBeWarded => wasDelivered && (newspaperModel == null || newspaperModel.activeSelf);
+
+    public void Ward(float seconds)
+    {
+        if (!CanBeWarded || seconds <= 0f) return;
+
+        wardedUntil = Mathf.Max(wardedUntil, Time.time + seconds);
+
+        if (wardRoutine == null)
+            wardRoutine = StartCoroutine(WardRoutine());
+    }
+
+    void EndWard()
+    {
+        wardedUntil = 0f;
+
+        if (wardRoutine != null)
+        {
+            StopCoroutine(wardRoutine);
+            wardRoutine = null;
+        }
+
+        if (wardEffect != null)
+            wardEffect.SetActive(false);
+    }
+
+    IEnumerator WardRoutine()
+    {
+        if (wardEffect != null)
+            wardEffect.SetActive(true);
+
+        while (IsWarded)
+            yield return null;
+
+        if (wardEffect != null)
+            wardEffect.SetActive(false);
+
+        wardRoutine = null;
     }
 
     void StopHideDestroyedRoutine()

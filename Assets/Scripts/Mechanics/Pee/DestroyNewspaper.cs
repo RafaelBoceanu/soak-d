@@ -84,6 +84,12 @@ public class DestroyNewspaper : MonoBehaviour
 
     void Soak(float strength)
     {
+        if (delivery.IsWarded)
+        {
+            soak = 0f;
+            return;
+        }
+
         if (lastSoakedFrame == Time.frameCount)
             return;
 
