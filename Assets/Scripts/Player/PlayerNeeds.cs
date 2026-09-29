@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerNeeds : MonoBehaviour
@@ -75,6 +76,11 @@ public class PlayerNeeds : MonoBehaviour
     public static event Action<OwnerType, NeedFailure> OnNeedCritical;
     public static event Action<OwnerType> OnAccident;
 
+    static readonly Dictionary<OwnerType, PlayerNeeds> byOwner = new Dictionary<OwnerType, PlayerNeeds>();
+
+    public static PlayerNeeds ForOwner(OwnerType owner) =>
+        byOwner.TryGetValue(owner, out PlayerNeeds needs) ? needs : null;
+
     public OwnerType Owner =>
         characterType == CharacterType.Boy ? OwnerType.Boy : OwnerType.Witch;
 
@@ -89,11 +95,18 @@ public class PlayerNeeds : MonoBehaviour
 
     private bool inAccident;
 
+    private float diureticUntil;
+    private float diureticDigestionMultiplier = 1f;
+    private float diureticFillPerSecond;
+
+    public bool IsHexed => Time.time < diureticUntil;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
     {
         OnNeedCritical = null;
         OnAccident = null;
+        byOwner.Clear();
     }
 
     [SerializeField] private CanvasManager canvasManager;
@@ -131,6 +144,8 @@ public class PlayerNeeds : MonoBehaviour
 
         if (peePuddle == null)
             peePuddle = GetComponent<PeePuddle>();
+
+        byOwner[Owner] = this;
     }
 
     void OnDisable()
@@ -146,6 +161,12 @@ public class PlayerNeeds : MonoBehaviour
         // get its controls back.
         if (inputHandler != null && inputHandler.CurrentVehicle != null)
             inputHandler.CurrentVehicle.SetRiderControl(true);
+    }
+
+    void OnDestroy()
+    {
+        if (ForOwner(Owner) == this)
+            byOwner.Remove(Owner);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -188,15 +209,20 @@ public class PlayerNeeds : MonoBehaviour
     {
         hydration = Mathf.Clamp(hydration - hydrationDrainPerSecond * CurrentEffort * deltaTime, 0f, maxHydration);
 
+        bool hexed = IsHexed;
+
         if (digesting > 0f)
         {
-            float arriving = Mathf.Min(digesting, digestionPerSecond * deltaTime);
+            float digestionRate = digestionPerSecond * (hexed ? diureticDigestionMultiplier : 1f);
+
+            float arriving = Mathf.Min(digesting, digestionRate * deltaTime);
 
             digesting -= arriving;
             pee = Mathf.Clamp(pee + arriving, 0f, maxPee);
         }
 
-        pee = Mathf.Clamp(pee + bladderTricklePerSecond * deltaTime, 0f, maxPee);
+        float trickle = bladderTricklePerSecond + (hexed ? diureticFillPerSecond : 0f);
+        pee = Mathf.Clamp(pee + trickle * deltaTime, 0f, maxPee);
     }
 
     public float CurrentEffort
@@ -269,6 +295,7 @@ public class PlayerNeeds : MonoBehaviour
 
         pee = maxPee * bladderAfterAccident;
         digesting = 0f;
+        diureticUntil = 0f;
         bladderReported = false;
 
         OnAccident?.Invoke(Owner);
@@ -311,6 +338,15 @@ public class PlayerNeeds : MonoBehaviour
         hydration = Mathf.Clamp(hydration + amount, 0f, maxHydration);
 
         digesting += amount * bladderPerHydration;
+    }
+
+    public void ApplyDiuretic(float seconds, float digestionMultiplier, float extraFillPerSecond)
+    {
+        if (seconds <= 0f) return;
+
+        diureticUntil = Mathf.Max(diureticUntil, Time.time + seconds);
+        diureticDigestionMultiplier = Mathf.Max(1f, digestionMultiplier);
+        diureticFillPerSecond = Mathf.Max(0f, extraFillPerSecond);
     }
 
     public float ReliefRatePerSecond =>

@@ -72,6 +72,7 @@ public class MountableVehicle : MonoBehaviour
     }
 
     public string AllowedTag => allowedTag;
+    public PlayerInputHandler Rider => currentPlayerInput;
 
     public bool CanDismount(PlayerInputHandler player)
     {
