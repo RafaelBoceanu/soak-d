@@ -7,12 +7,20 @@ public class MountableVehicle : MonoBehaviour
     [Header("Setup")]
     [SerializeField] private Transform mountPoint;
 
+    [System.Serializable]
+    private struct RiderModel
+    {
+        public OwnerType owner;
+        public GameObject model;
+    }
+
     [Header("Restrictions")]
+    [Tooltip("\"Boy\" pr \"Witch\". Left empty, either character can ride it")]
     [SerializeField] private string allowedTag; // "Boy" or "Witch"
 
     [Header("Character Models")]
-    [SerializeField] private GameObject mountedCharacterModel;
-    [SerializeField] private GameObject playableCharacterModel;
+    [Tooltip("Model shown on the vehicle while riding")]
+    [SerializeField] private RiderModel[] riderModels;
 
     [Header("Camera Offsets")]
     [SerializeField] private float vehicleDistance = 7f;
@@ -41,27 +49,32 @@ public class MountableVehicle : MonoBehaviour
     private PlayerMovement currentPlayerMovement;
     private CharacterController currentController;
 
-    private BicycleController bike;
-    private FlyingBroomController broom;
+    private IRideable ride;
+    private GameObject activeRiderModel;
 
-    private Transform RiderAnchor => bike != null ? bike.RiderAnchor : transform;
+    private Transform RiderAnchor => ride != null ? ride.RiderAnchor : transform;
     private float RiderRise => currentController != null 
         ? currentController.height * 0.5f - currentController.center.y + currentController.skinWidth 
         : 0f;
 
     private void Awake()
     {
-        bike = GetComponent<BicycleController>();
-        broom = GetComponent<FlyingBroomController>();
+        ride = GetComponent<IRideable>();
 
-        if (mountedCharacterModel)
-            mountedCharacterModel.SetActive(false);
+        if (ride == null)
+            Debug.LogError($"{name}: no BicycleController or FlyingBroomController found", this);
+        
+        foreach (RiderModel rider in riderModels)
+        {
+            if (rider.model)
+                rider.model.SetActive(false);
+        }
     }
 
     public bool CanMount(GameObject player)
     {
         if (isOccupied) return false;
-        if (!player.CompareTag(allowedTag)) return false;
+        if (!IsShared && !player.CompareTag(allowedTag)) return false;
 
         return true;
     }
@@ -72,6 +85,8 @@ public class MountableVehicle : MonoBehaviour
     }
 
     public string AllowedTag => allowedTag;
+    public bool IsShared => string.IsNullOrEmpty(allowedTag);
+
     public PlayerInputHandler Rider => currentPlayerInput;
 
     public bool CanDismount(PlayerInputHandler player)
@@ -93,11 +108,12 @@ public class MountableVehicle : MonoBehaviour
         currentPlayerInput = playerInput;
         currentPlayerMovement = movement;
 
-        if (mountedCharacterModel)
-            mountedCharacterModel.SetActive(true);
+        activeRiderModel = GetRiderModel(playerInput.Owner);
+        if (activeRiderModel)
+            activeRiderModel.SetActive(true);
 
-        if (playableCharacterModel)
-            playableCharacterModel.SetActive(false);
+        if (playerInput.CharacterModel)
+            playerInput.CharacterModel.SetActive(false);
 
         // Disable player movement
         movement.enabled = false;
@@ -128,7 +144,7 @@ public class MountableVehicle : MonoBehaviour
         {
             camController.SetFollowTarget(transform); // follow vehicle
             camController.SetOffset(vehicleDistance, vehicleFramingOffset); // optional offset
-            camController.SetFollowHeading(broom != null);
+            camController.SetFollowHeading(ride != null && ride.FollowHeading);
         }
 
         // Snap to mount point
@@ -137,16 +153,11 @@ public class MountableVehicle : MonoBehaviour
         // Parent player
         playerInput.transform.SetParent(RiderAnchor, true);
 
-        // Assing control
-        if (bike != null)
+        // Assign control
+        if (ride != null)
         {
-            playerInput.SetBike(bike);
-            bike.SetControl(true);
-        }
-        else if (broom != null)
-        {
-            playerInput.SetBroom(broom);
-            broom.SetControl(true);
+            playerInput.SetVehicle(ride);
+            ride.SetControl(true);
         }
     }
 
@@ -154,8 +165,7 @@ public class MountableVehicle : MonoBehaviour
     {
         if (!isOccupied) return;
 
-        if (bike != null) bike.SetControl(allowed);
-        if (broom != null) broom.SetControl(allowed);
+        if (ride != null) ride.SetControl(allowed);
     }
 
     public bool Dismount(PlayerInputHandler player)
@@ -169,16 +179,17 @@ public class MountableVehicle : MonoBehaviour
         }
 
         // Stop the vehicle before releasing the rider, so it cannot drift off or shove them around
-        if (bike != null) bike.SetControl(false);
-        if (broom != null) broom.SetControl(false);
+        if (ride != null) ride.SetControl(false);
 
         // Clear control
         currentPlayerInput.ClearVehicle();
 
-        if (mountedCharacterModel)
-            mountedCharacterModel.SetActive(false);
-        if (playableCharacterModel)
-            playableCharacterModel.SetActive(true);
+        if (activeRiderModel)
+            activeRiderModel.SetActive(false);
+        activeRiderModel = null;
+
+        if (currentPlayerInput.CharacterModel)
+            currentPlayerInput.CharacterModel.SetActive(true);
 
         // Unparent player
         currentPlayerInput.transform.SetParent(null);
@@ -229,6 +240,17 @@ public class MountableVehicle : MonoBehaviour
         isOccupied = false;
 
         return true;
+    }
+
+    private GameObject GetRiderModel(OwnerType owner)
+    {
+        foreach (RiderModel rider in riderModels)
+        {
+            if (rider.owner == owner)
+                return rider.model;
+        }
+
+        return null;
     }
 
     #region Dismount Placement
@@ -357,11 +379,7 @@ public class MountableVehicle : MonoBehaviour
 
         if (currentPlayerInput != null && t.IsChildOf(currentPlayerInput.transform)) return true;
 
-        if (bike != null)
-        {
-            if (bike.sphereRB != null && t.IsChildOf(bike.sphereRB.transform)) return true;
-            if (bike.bicycleBody != null && t.IsChildOf(bike.bicycleBody.transform)) return true;
-        }
+        if (ride != null && ride.OwnsCollider(col)) return true;
 
         return false;
     }

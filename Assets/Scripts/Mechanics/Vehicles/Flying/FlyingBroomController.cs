@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FlyingBroomController : MonoBehaviour
+public class FlyingBroomController : MonoBehaviour, IRideable
 {
     [Header("Speed")]
     [Tooltip("Top speed in m/s while holding throttle up")]
@@ -85,6 +85,19 @@ public class FlyingBroomController : MonoBehaviour
         throttleUp = up;
         throttleDown = down;
     }
+
+    public Transform RiderAnchor => transform;
+    public bool FollowHeading => true;
+
+    public void ReadInput(PlayerInputContext input)
+    {
+        Vector2 move = input.Move;
+        float throttle = input.Throttle;
+
+        SetInput(move.x, move.y, input.Yaw, throttle > 0.5f, throttle < -0.5f);
+    }
+
+    public bool OwnsCollider(Collider col) => false;
 
     public void Park()
     {

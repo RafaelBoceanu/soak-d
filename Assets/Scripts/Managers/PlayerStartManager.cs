@@ -229,15 +229,19 @@ public class PlayerStartManager : MonoBehaviour
         {
             foreach (MountableVehicle vehicle in vehiclesOverride)
             {
-                if (vehicle != null && !vehicles.Contains(vehicle))
+                if (vehicle != null && !vehicle.IsShared && !vehicles.Contains(vehicle))
                     vehicles.Add(vehicle);
             }
         }
 
         if (vehicles.Count == 0)
         {
-            vehicles.AddRange(FindObjectsByType<MountableVehicle>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None));
+            foreach (MountableVehicle vehicle in FindObjectsByType<MountableVehicle>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (!vehicle.IsShared)
+                    vehicles.Add(vehicle);
+            }
         }
 
         PairVehiclesToRiders();
@@ -573,12 +577,12 @@ public class PlayerStartManager : MonoBehaviour
 
         root.SetPositionAndRotation(spot.position, spot.rotation);
 
-        BicycleController bike = vehicle.GetComponent<BicycleController>();
+        GroundVehicleController bike = vehicle.GetComponent<GroundVehicleController>();
 
         if (bike != null)
         {
             CarryOver(bike.sphereRB, from, spot.position, turn);
-            CarryOver(bike.bicycleBody, from, spot.position, turn);
+            CarryOver(bike.body, from, spot.position, turn);
         }
 
         Physics.SyncTransforms();

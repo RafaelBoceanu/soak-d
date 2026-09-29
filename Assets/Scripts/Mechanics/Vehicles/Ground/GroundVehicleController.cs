@@ -1,7 +1,7 @@
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
-public class BicycleController : MonoBehaviour
+public class GroundVehicleController : MonoBehaviour, IRideable
 {
     RaycastHit hit;
     float moveInput, steerInput, currentVelocityOffset;
@@ -11,17 +11,16 @@ public class BicycleController : MonoBehaviour
     bool isGrounded;
     Vector3 groundNormal = Vector3.up;
 
-    float visualSteer, leanAngle, crankAngle;
+    float leanAngle;
     float yawRate, corneringLoad;
     bool stepping;
     string stepReason = "idle";
     float groundAhead;
-    Quaternion handleBaseRotation = Quaternion.identity, frameBaseRotation = Quaternion.identity;
     bool initialised;
 
     [HideInInspector] public Vector3 velocity;
-    public Rigidbody sphereRB, bicycleBody;
-    public GameObject handle, frame;
+    public Rigidbody sphereRB;
+    [FormerlySerializedAs("bicycleBody")] public Rigidbody body;
     public TrailRenderer skidTrail;
 
     public float maxSpeed = 20f, acceleration = 3f, gravity = 25f, skidWidth = 0.062f;
@@ -78,12 +77,6 @@ public class BicycleController : MonoBehaviour
     [Tooltip("Most sideways acceleration the tyres hold")]
     public float maxCorneringAccel = 8f;
 
-    [Header("Steering Visuals")]
-    [Tooltip("How far the handlebar and fork turn at full steering input")]
-    public float handleRotVal = 30f;
-    [Tooltip("How quickly the handlebar and fork follow the steering input. Higher is snappier")]
-    public float handleTurnSharpness = 12f;
-
     [Header("Braking")]
     [Range(1, 10)]
     public float brakingStrength = 5f;
@@ -112,13 +105,9 @@ public class BicycleController : MonoBehaviour
 
     public bool IsGrounded => isGrounded;
     public event System.Action OnHop;
-
-    [Header("Cranks")]
-    [SerializeField] private Transform cranksPivot;
-
-    [Tooltip("Degrees the cranks turn for every unit the bike travels")]
-    [SerializeField] private float crankDegreesPerUnit = 51f;
-
+    public event System.Action OnParked;
+    public bool IsControlled => isControlled;
+    public float SteerInput => steerInput;
 
     void Awake()
     {
@@ -131,16 +120,13 @@ public class BicycleController : MonoBehaviour
         initialised = true;
 
         sphereRB.transform.parent = null;
-        bicycleBody.transform.parent = null;
+        body.transform.parent = null;
 
         SphereCollider wheel = sphereRB.GetComponent<SphereCollider>();
         Vector3 wheelScale = sphereRB.transform.localScale;
         float uniformScale = Mathf.Max(Mathf.Abs(wheelScale.x), Mathf.Abs(wheelScale.y), Mathf.Abs(wheelScale.z));
 
         wheelRadius = wheel.radius * uniformScale;
-
-        if (handle != null) handleBaseRotation = handle.transform.localRotation;
-        if (frame != null) frameBaseRotation = frame.transform.localRotation;
 
         if (skidTrail != null)
         {
@@ -163,7 +149,6 @@ public class BicycleController : MonoBehaviour
         {
             groundNormal = Vector3.up;
             leanAngle = 0f;
-            visualSteer = 0f;
 
             SetPhysicsActive(true);
         }
@@ -191,19 +176,19 @@ public class BicycleController : MonoBehaviour
             sphereRB.angularVelocity = Vector3.zero;
         }
 
-        if (bicycleBody != null)
+        if (body != null)
         {
-            bicycleBody.linearVelocity = Vector3.zero;
-            bicycleBody.angularVelocity = Vector3.zero;
+            body.linearVelocity = Vector3.zero;
+            body.angularVelocity = Vector3.zero;
         }
 
         if (freezeWhenUnridden)
             SetPhysicsActive(false);
 
-        ResetSteeringVisuals();
-
         if (skidTrail != null)
             skidTrail.emitting = false;
+
+        OnParked?.Invoke();
     }
 
     void SetPhysicsActive(bool active)
@@ -214,10 +199,10 @@ public class BicycleController : MonoBehaviour
             if (active) sphereRB.WakeUp();
         }
 
-        if (bicycleBody != null)
+        if (body != null)
         {
-            bicycleBody.isKinematic = !active;
-            if (active) bicycleBody.WakeUp();
+            body.isKinematic = !active;
+            if (active) body.WakeUp();
         }
     }
 
@@ -233,7 +218,20 @@ public class BicycleController : MonoBehaviour
             hopRequestedAt = Time.time;
     }
 
-    public Transform RiderAnchor => bicycleBody != null ? bicycleBody.transform : transform;
+    public Transform RiderAnchor => body != null ? body.transform : transform;
+
+    public bool FollowHeading => false;
+
+    public void ReadInput(PlayerInputContext input) =>
+        SetInput(input.Move.y, input.Move.x, input.Brake);
+
+    public bool OwnsCollider(Collider col)
+    {
+        Transform t = col.transform;
+
+        return (sphereRB != null && t.IsChildOf(sphereRB.transform))
+            || (body != null && t.IsChildOf(body.transform));
+    }
 
     // Update is called once per frame
     void Update()
@@ -241,9 +239,6 @@ public class BicycleController : MonoBehaviour
         if(!isControlled) return;
 
         transform.position = sphereRB.transform.position;
-
-        SteeringVisuals();
-        HandleCranksAnimation();
     }
 
     private void FixedUpdate()
@@ -286,7 +281,7 @@ public class BicycleController : MonoBehaviour
         else
             Gravity();
 
-        BikeTilt();
+        BodyTilt();
     }
 
     void TryHop()
@@ -479,7 +474,7 @@ public class BicycleController : MonoBehaviour
         skidTrail.emitting = isGrounded && (sliding || brakeLock);
     }
 
-    void BikeTilt()
+    void BodyTilt()
     {
         float corneringAccel = velocity.z * yawRate * Mathf.Deg2Rad;
         float leanTarget = -Mathf.Atan2(corneringAccel, Mathf.Abs(Physics.gravity.y)) * Mathf.Rad2Deg;
@@ -492,45 +487,9 @@ public class BicycleController : MonoBehaviour
 
         Quaternion target = alignToGround * yaw * Quaternion.Euler(0f, 0f, leanAngle);
 
-        bicycleBody.MoveRotation(
-            Quaternion.Slerp(bicycleBody.rotation, target, Sharpness(tiltSharpness, Time.fixedDeltaTime))
+        body.MoveRotation(
+            Quaternion.Slerp(body.rotation, target, Sharpness(tiltSharpness, Time.fixedDeltaTime))
         );
-    }
-
-    void SteeringVisuals()
-    {
-        visualSteer = Mathf.Lerp(visualSteer, steerInput, Sharpness(handleTurnSharpness, Time.deltaTime));
-
-        Quaternion steerOffset = Quaternion.Euler(0f, handleRotVal * visualSteer, 0f);
-
-        if (handle != null)
-            handle.transform.localRotation = handleBaseRotation * steerOffset;
-
-        if (frame != null)
-            frame.transform.localRotation = frameBaseRotation * steerOffset;
-    }
-
-    void ResetSteeringVisuals()
-    {
-        visualSteer = 0f;
-
-        if (handle != null)
-            handle.transform.localRotation = handleBaseRotation;
-
-        if (frame != null)
-            frame.transform.localRotation = frameBaseRotation;
-    }
-
-    void HandleCranksAnimation()
-    {
-        if (cranksPivot == null) return;
-
-        // Only forward movement
-        float forwardSpeed = Mathf.Max(0f, velocity.z);
-
-        crankAngle = Mathf.Repeat(crankAngle + forwardSpeed * crankDegreesPerUnit * Time.deltaTime, 360f);
-
-        cranksPivot.localRotation = Quaternion.Euler(crankAngle, 0f, 0f);
     }
 
     static float Sharpness(float sharpness, float deltaTime) => 1f - Mathf.Exp(-sharpness * deltaTime);

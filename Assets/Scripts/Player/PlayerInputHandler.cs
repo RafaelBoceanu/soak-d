@@ -11,16 +11,20 @@ public class PlayerInputHandler : MonoBehaviour
     [Tooltip("Camera rig of this player. Left empty, the rig registered for the same owner is used.")]
     [SerializeField] private PlayersCameraController cameraController;
 
+    [Tooltip("This character's walking model, hidden while riding a vehicle")]
+    [SerializeField] private GameObject characterModel;
+
     private PlayerMovement playerMovement;
 
-    private BicycleController bike;
-    private FlyingBroomController broom;
+    private IRideable ride;
 
     private MountableVehicle currentVehicle;
     
     private List<MountableVehicle> nearbyVehicles = new List<MountableVehicle>();
 
     public OwnerType Owner => owner;
+    public bool CanHop => owner == OwnerType.Boy;
+    public GameObject CharacterModel => characterModel;
 
     public PlayerInputContext Controls => TwoPlayerInputManager.GetPlayer(owner);
 
@@ -60,7 +64,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (input == null)
             return;
 
-        playerMovement.SetAiming(input.Aim && bike == null && broom == null);
+        playerMovement.SetAiming(input.Aim && ride == null);
 
         // Mount / Dismount
         if (input.InteractPressed)
@@ -72,37 +76,38 @@ public class PlayerInputHandler : MonoBehaviour
                 return;
             }
 
+            MountableVehicle nearest = null;
+            float nearestDistance = float.MaxValue;
+
             foreach (var vehicle in nearbyVehicles)
             {
-                if (vehicle.CanMount(gameObject))
-                {
-                    vehicle.Mount(this, playerMovement);
-                    currentVehicle = vehicle;
-                    break;
-                }
+                if (vehicle == null || !vehicle.CanMount(gameObject)) continue;
+
+                float distance = (vehicle.transform.position - transform.position).sqrMagnitude;
+                if (distance >= nearestDistance) continue;
+
+                nearest = vehicle;
+                nearestDistance = distance;
+            }
+
+            if (nearest != null)
+            {
+                nearest.Mount(this, playerMovement);
+                currentVehicle = nearest;
             }
         }
 
         // Movement input
         Vector2 move = input.Move;
 
-        // Bike Control
-        if (bike != null)
+        // Vehicle Control
+        if (ride != null)
         {
-            bike.SetInput(move.y, move.x, input.Brake);
+            ride.ReadInput(input);
 
-            if (input.JumpPressed)
-                bike.Hop();
+            if (CanHop && input.JumpPressed && ride is GroundVehicleController vehicle)
+                vehicle.Hop();
 
-            return;
-        }
-
-        // Broom Control
-        if (broom != null)
-        {
-            float throttle = input.Throttle;
-
-            broom.SetInput(move.x, move.y, input.Yaw, throttle > 0.5f, throttle < -0.5f);
             return;
         }
 
@@ -111,23 +116,14 @@ public class PlayerInputHandler : MonoBehaviour
         playerMovement.SetSprint(input.Sprint);
     }
 
-    // Assign bike
-    public void SetBike(BicycleController newBike)
+    public void SetVehicle(IRideable vehicle)
     {
-        bike = newBike;
-        broom = null;
-    }
-
-    public void SetBroom(FlyingBroomController newBroom)
-    {
-        broom = newBroom;
-        bike = null;
+        ride = vehicle;
     }
 
     public void ClearVehicle()
     {
-        bike = null;
-        broom = null;
+        ride = null;
     }
 
     #region Nearby Vehicle Detection
