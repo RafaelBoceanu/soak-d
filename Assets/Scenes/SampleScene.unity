@@ -19514,6 +19514,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: 1
   cameraController: {fileID: 391078723}
+  characterModel: {fileID: 6009403475273024979}
 --- !u!114 &541694503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47328,7 +47329,7 @@ GameObject:
   - component: {fileID: 1257811245}
   m_Layer: 0
   m_Name: FlyingBroom
-  m_TagString: Untagged
+  m_TagString: Witch
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47468,8 +47469,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MountableVehicle
   mountPoint: {fileID: 2098183243}
   allowedTag: Witch
-  mountedCharacterModel: {fileID: 1442315525}
-  playableCharacterModel: {fileID: 6009403475273024979}
+  riderModels:
+  - owner: 1
+    model: {fileID: 1442315525}
   vehicleDistance: 7
   vehicleFramingOffset: {x: 0, y: 1}
   playerDistance: 7
@@ -60545,6 +60547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   owner: 0
   cameraController: {fileID: 1839225300}
+  characterModel: {fileID: 3953548418429821703}
 --- !u!114 &1552542201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102273,7 +102276,7 @@ Transform:
   m_GameObject: {fileID: 2080869131}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.067, y: -0.85, z: 1.206}
+  m_LocalPosition: {x: -0.067, y: -1.17, z: 1.206}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -105550,6 +105553,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4736153564836449657}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1387034764089226371
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1162998681148750014, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_Name
+      value: Skateboard
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266393219100381783, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: maxStepHeight
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 10.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.067
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -14.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7973955077703589727, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ad4999cd1d4cd4478de4accbd1165ab, type: 3}
 --- !u!4 &1406884930779982319
 Transform:
   m_ObjectHideFlags: 0
@@ -108110,63 +108174,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1001 &3276699612202684502
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 201585739370145770, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_Name
-      value: FireHydrant
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624501010192794472, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 9c5451d35177be443b55fa6d75cb93f4, type: 3}
 --- !u!4 &3287769726136854859
 Transform:
   m_ObjectHideFlags: 0
@@ -116438,9 +116445,11 @@ GameObject:
   - component: {fileID: 9192457632094920626}
   - component: {fileID: 9192457632094920628}
   - component: {fileID: 9192457632094920627}
+  - component: {fileID: 9192457632094920630}
+  - component: {fileID: 9192457632094920629}
   m_Layer: 0
   m_Name: Old Bicycle
-  m_TagString: Untagged
+  m_TagString: Boy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -116459,7 +116468,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocity: {x: 0, y: 0, z: 0}
   sphereRB: {fileID: 1886691531}
-  bicycleBody: {fileID: 8587908836257514234}
+  body: {fileID: 8587908836257514234}
   handle: {fileID: 3707496055783637605}
   frame: {fileID: 9152231287875530802}
   skidTrail: {fileID: 1998709010}
@@ -116493,7 +116502,7 @@ MonoBehaviour:
   brakingStrength: 2
   brakeDeceleration: 10
   canHop: 1
-  hopHeight: 0.9
+  hopHeight: 2.5
   hopCooldown: 0.35
   hopBufferSeconds: 0.15
   hopLiftoffSeconds: 0.12
@@ -116535,8 +116544,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MountableVehicle
   mountPoint: {fileID: 1013335088}
   allowedTag: Boy
-  mountedCharacterModel: {fileID: 1085611741}
-  playableCharacterModel: {fileID: 3953548418429821703}
+  riderModels:
+  - owner: 0
+    model: {fileID: 1085611741}
   vehicleDistance: 7
   vehicleFramingOffset: {x: 0, y: 1}
   playerDistance: 7
@@ -116549,6 +116559,36 @@ MonoBehaviour:
   dismountGroundMask:
     serializedVersion: 2
     m_Bits: 257
+--- !u!114 &9192457632094920629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9192457632094920625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1a6cb46b0cef94bbe32691ab446751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BicycleCranks
+  cranksPivot: {fileID: 106790290733488906}
+  crankDegreesPerUnit: 45
+--- !u!114 &9192457632094920630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9192457632094920625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f3ebe076d3882445a02dadd0766f120, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandlebarSteering
+  handle: {fileID: 3707496055783637605}
+  frame: {fileID: 9152231287875530802}
+  handleRotVal: 30
+  handleTurnSharpness: 12
 --- !u!4 &9212903314621729742
 Transform:
   m_ObjectHideFlags: 0
@@ -116586,6 +116626,7 @@ SceneRoots:
   - {fileID: 190742490}
   - {fileID: 1921777836}
   - {fileID: 8420037160436548875}
+  - {fileID: 1387034764089226371}
   - {fileID: 1536288883}
   - {fileID: 1257811241}
   - {fileID: 1896820609}
@@ -116603,4 +116644,3 @@ SceneRoots:
   - {fileID: 266343894431763357}
   - {fileID: 5229098663424738573}
   - {fileID: 3486096633344680426}
-  - {fileID: 3276699612202684502}
