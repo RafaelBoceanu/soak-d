@@ -23,6 +23,8 @@ public class DestroyNewspaper : MonoBehaviour
     GameObject lastSource;
     PeeSystem lastSourceSystem;
 
+    AerialDrizzleAbility lastSourceDrizzle;
+
     public float SoakProgress => soakSecondsToRuin <= 0f ? 0f : Mathf.Clamp01(soak / soakSecondsToRuin);
 
     void Awake()
@@ -63,12 +65,16 @@ public class DestroyNewspaper : MonoBehaviour
         {
             lastSource = source;
             lastSourceSystem = source.GetComponentInParent<PeeSystem>();
+            lastSourceDrizzle = lastSourceSystem == null ? source.GetComponentInParent<AerialDrizzleAbility>() : null;
         }
 
-        if (lastSourceSystem == null)
-            return 1f;
+        if (lastSourceSystem != null)
+            return Mathf.Max(lastSourceSystem.CurrentFlow, weakestUsefulStream);
 
-        return Mathf.Max(lastSourceSystem.CurrentFlow, weakestUsefulStream);
+        if (lastSourceDrizzle != null)
+            return Mathf.Max(lastSourceDrizzle.SoakStrength, weakestUsefulStream);
+
+        return 1f;
     }
 
     private void OnParticleCollision(GameObject other)
