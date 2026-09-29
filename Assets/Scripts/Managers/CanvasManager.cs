@@ -46,6 +46,9 @@ public class CanvasManager : MonoBehaviour
     [SerializeField] private GameObject boyUltimateReady;
     [SerializeField] private GameObject boyBalloonLoaded;
 
+    [Header("Witch abilities")]
+    [SerializeField] private Slider witchManaSlider;
+
     [Tooltip("{0} is the amount held, {1} the maximum. \"{0}\" shows 3, \"{0}/{1}\" shows 3/6.")]
     [SerializeField] private string inventoryCountFormat = "{0}/{1}";
 
@@ -89,6 +92,7 @@ public class CanvasManager : MonoBehaviour
         DeliveryScoreManager.onZoneCountChanged += ZoneCountOnChanged;
         FireHydrantAbility.OnChargeChanged += UltimateOnChargeChanged;
         ProjectileThrow.OnAmmoSwapped += ThrowOnAmmoSwapped;
+        WitchMana.OnManaChanged += ManaOnChanged;
     }
 
     void OnDestroy()
@@ -101,6 +105,7 @@ public class CanvasManager : MonoBehaviour
         DeliveryScoreManager.onZoneCountChanged -= ZoneCountOnChanged;
         FireHydrantAbility.OnChargeChanged -= UltimateOnChargeChanged;
         ProjectileThrow.OnAmmoSwapped -= ThrowOnAmmoSwapped;
+        WitchMana.OnManaChanged -= ManaOnChanged;
     }
 
     void Start()
@@ -205,6 +210,14 @@ public class CanvasManager : MonoBehaviour
             return;
 
         boyBalloonLoaded.SetActive(ammo == ProjectileThrow.Ammo.WaterBalloon);
+    }
+
+    private void ManaOnChanged(OwnerType owner, float mana01)
+    {
+        if (owner != OwnerType.Witch || witchManaSlider == null)
+            return;
+
+        witchManaSlider.value = mana01;
     }
     #endregion
 
